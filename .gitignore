@@ -16,6 +16,8 @@ CMakeUserPresets.json
 .DS_Store
 cmake-build-debug
 cmake-build-release
+doodlevox_vst/build/
+doodlevox_vst/xcode-build/
 
 # CLion
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
