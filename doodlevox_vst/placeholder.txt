@@ -1,3 +1,0 @@
-This is a placeholder text file to indicate the prescence of this folder.
-
-Intended for use of the VST implementation of DoodleVox.
