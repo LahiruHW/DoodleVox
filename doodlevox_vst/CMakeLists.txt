@@ -135,3 +135,6 @@ add_dependencies(${PROJECT_NAME} AudioPluginData)
 target_include_directories("${PROJECT_NAME}" PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/source"
 )
+
+# Generate a consolidated JuceHeader.h for convenience (allows `#include <JuceHeader.h>`)
+juce_generate_juce_header("${PROJECT_NAME}")
