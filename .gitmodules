@@ -1,6 +1,6 @@
-[submodule "doodlevox_vst/Modules/JUCE"]
-	path = doodlevox_vst/Modules/JUCE
+[submodule "doodlevox_vst/modules/JUCE"]
+	path = doodlevox_vst/modules/JUCE
 	url = https://github.com/juce-framework/JUCE.git
-[submodule "doodlevox_vst/Modules/cmake-includes"]
-	path = doodlevox_vst/Modules/cmake-includes
+[submodule "doodlevox_vst/modules/cmake-includes"]
+	path = doodlevox_vst/modules/cmake-includes
 	url = https://github.com/sudara/cmake-includes.git
