@@ -278,7 +278,9 @@ private:
                                                bufferData.getNumSamples());
 
             DBG("Audio saved to: " + outputFile.getFullPathName());
+#if JUCE_DEBUG
             outputFile.revealToUser();
+#endif
             processor.lastReceivedFile = outputFile;
             processor.newFileReady = true;
             processor.receiverState = ReceiverState::Idle;
