@@ -1,22 +1,34 @@
 #pragma once
 
+#include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "DragClipComponent.hpp"
 
 //==============================================================================
-class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
+class DoodleVoxVSTAudioProcessorEditor final : public juce::AudioProcessorEditor,
+                                              public juce::DragAndDropContainer,
+                                              private juce::Timer
 {
 public:
-    explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
-    ~AudioPluginAudioProcessorEditor() override;
+    explicit DoodleVoxVSTAudioProcessorEditor(DoodleVoxVSTAudioProcessor &);
+    ~DoodleVoxVSTAudioProcessorEditor() override;
 
     //==============================================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics &) override;
     void resized() override;
 
 private:
+
+    void timerCallback() override;
+
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    AudioPluginAudioProcessor& processorRef;
+    DoodleVoxVSTAudioProcessor &processorRef;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
+    juce::Label statusLabel;
+    juce::Label ipLabel;
+    juce::TextButton dragButton { "Drag Clip To DAW" };
+    DragClipComponent dragClip;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DoodleVoxVSTAudioProcessorEditor)
 };
