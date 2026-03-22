@@ -55,11 +55,17 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/images/feature_graphic/feature_graphic_dark.png
+    - assets/images/feature_graphic/feature_graphic_light.png
     - assets/images/icon/dv_icon_1.png
     - assets/images/icon/dv_icon_1_light.png
     - assets/images/icon/dv_icon_1_light_transparent.png
     - assets/images/icon/dv_icon_1_dark.png
     - assets/images/icon/dv_icon_1_dark_transparent.png
+    - assets/images/icon/dv_icon_1_light_extralarge.png
+    - assets/images/icon/dv_icon_1_light_transparent_extralarge.png
+    - assets/images/icon/dv_icon_1_dark_extralarge.png
+    - assets/images/icon/dv_icon_1_dark_transparent_extralarge.png
     - assets/images/splash/dv_icon_1_light_large.png
     - assets/images/splash/dv_icon_1_light_transparent_large.png
     - assets/images/splash/dv_icon_1_dark_large.png
