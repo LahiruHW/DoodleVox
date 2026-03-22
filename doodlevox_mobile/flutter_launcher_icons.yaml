@@ -1,16 +1,22 @@
 # flutter pub run flutter_launcher_icons
 flutter_launcher_icons:
+  # default image used when a platform-specific path isn't provided
   image_path: "assets/images/icon/dv_icon_1_light.png"
 
+  # Android adaptive icon configuration (uses foreground/background images)
   android: "launcher_icon"
   image_path_android: "assets/images/icon/dv_icon_1_light.png"
+  adaptive_icon_foreground: "assets/images/icon/dv_icon_1_light_transparent.png"
+  adaptive_icon_background: "assets/images/icon/dv_icon_1_light.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
-  
+
+  # iOS icons — include dark variants (static and transparent)
   ios: true
   image_path_ios: "assets/images/icon/dv_icon_1_light.png"
   image_path_ios_transparent: "assets/images/icon/dv_icon_1_light_transparent.png"
-  remove_alpha_ios: true
+  image_path_ios_dark: "assets/images/icon/dv_icon_1_dark.png"
   image_path_ios_dark_transparent: "assets/images/icon/dv_icon_1_dark_transparent.png"
+  remove_alpha_ios: true
 
   web:
     generate: false
