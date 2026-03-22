@@ -70,5 +70,9 @@
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<key>NSCameraUsageDescription</key>
+		<string>DoodleVox needs camera access to scan QR codes for DAW connection.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>DoodleVox needs microphone access to record audio.</string>
 	</dict>
 </plist>

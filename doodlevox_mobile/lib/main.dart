@@ -1,13 +1,17 @@
 import 'dart:developer' as dev;
 import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:doodlevox_mobile/utils/dv_router.dart';
 import 'package:doodlevox_mobile/styles/dv_themes.dart';
+import 'package:doodlevox_mobile/utils/dv_shared_prefs.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:doodlevox_mobile/providers/dv_prefs_provider.dart';
+import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
 
-void main() {
+void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  
+
   // initialize logging
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
@@ -23,13 +27,25 @@ void main() {
   final log = Logger('Main');
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  // initialize any necessary services here (e.g., database, API clients, etc.)
+  log.info("Loading dependencies...");
+
+  // Initialize shared preferences
+  await DVSharedPrefs.init();
+
   Future.delayed(const Duration(seconds: 2), () {
     FlutterNativeSplash.remove();
   });
 
+  final appRuntime = MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => DVPrefsProvider()),
+      ChangeNotifierProvider(create: (_) => DVAudioProvider()),
+    ],
+    builder: (context, child) => const DoodleVoxApp(),
+  );
+
   log.fine("Starting the app...");
-  runApp(const DoodleVoxApp());
+  runApp(appRuntime);
 }
 
 class DoodleVoxApp extends StatelessWidget {
@@ -37,15 +53,19 @@ class DoodleVoxApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
+    final prefsProvider = context.watch<DVPrefsProvider>();
+
     return MaterialApp.router(
       title: 'DoodleVox',
       theme: DVTheme.lightTheme,
       darkTheme: DVTheme.darkTheme,
       debugShowCheckedModeBanner: false,
+      // themeMode: prefsProvider.themeMode,
       themeMode: ThemeMode.system,
       routerConfig: DvRouter.router,
+      themeAnimationDuration: const Duration(milliseconds: 800),
+      themeAnimationCurve: Curves.easeInOut,
     );
   }
 }
-
-

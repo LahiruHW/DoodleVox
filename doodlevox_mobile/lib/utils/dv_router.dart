@@ -2,9 +2,14 @@ import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:doodlevox_mobile/screens/qr_scan_screen.dart';
+import 'package:doodlevox_mobile/screens/record_screen.dart';
+import 'package:doodlevox_mobile/screens/library_screen.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_main_shell.dart';
 
 class DvRouter {
   static final rootNavKey = GlobalKey<NavigatorState>();
+  static final _recordNavKey = GlobalKey<NavigatorState>();
+  static final _libraryNavKey = GlobalKey<NavigatorState>();
 
   static final _routeLogger = Logger('DvRouter');
 
@@ -17,9 +22,32 @@ class DvRouter {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const QRScanScreen(
-          title: 'DoodleVox Home Page',
+        builder: (context, state) => const QRScanScreen(),
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => DVMainShell(
+          navigationShell: navigationShell,
         ),
+        branches: [
+          StatefulShellBranch(
+            navigatorKey: _recordNavKey,
+            routes: [
+              GoRoute(
+                path: '/main/record',
+                builder: (context, state) => const RecordScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _libraryNavKey,
+            routes: [
+              GoRoute(
+                path: '/main/library',
+                builder: (context, state) => const LibraryScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );
