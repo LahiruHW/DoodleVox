@@ -71,6 +71,10 @@ flutter:
     - assets/images/icon/dv_icon_1_light_transparent_extralarge.png
     - assets/images/icon/dv_icon_1_dark_extralarge.png
     - assets/images/icon/dv_icon_1_dark_transparent_extralarge.png
+    - assets/images/icon/dv_icon_1_light_small.png
+    - assets/images/icon/dv_icon_1_light_transparent_small.png
+    - assets/images/icon/dv_icon_1_dark_small.png
+    - assets/images/icon/dv_icon_1_dark_transparent_small.png
     - assets/images/splash/dv_icon_1_light_large.png
     - assets/images/splash/dv_icon_1_light_transparent_large.png
     - assets/images/splash/dv_icon_1_dark_large.png
