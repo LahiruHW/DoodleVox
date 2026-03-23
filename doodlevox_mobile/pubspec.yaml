@@ -77,8 +77,10 @@ flutter:
     - assets/images/icon/dv_icon_1_dark_transparent_small.png
     - assets/images/splash/dv_icon_1_light_large.png
     - assets/images/splash/dv_icon_1_light_transparent_large.png
+    - assets/images/splash/dv_icon_1_light_transparent_extralarge.png
     - assets/images/splash/dv_icon_1_dark_large.png
     - assets/images/splash/dv_icon_1_dark_transparent_large.png
+    - assets/images/splash/dv_icon_1_dark_transparent_extralarge.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
   # For details regarding adding assets from package dependencies, see

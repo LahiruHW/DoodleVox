@@ -66,8 +66,8 @@ flutter_native_splash:
   image: assets/images/splash/dv_icon_1_light_transparent_large.png
   image_dark: assets/images/splash/dv_icon_1_dark_transparent_large.png
   # platform-specific image. will override general image if active:
-  #image_android:       assets/splash-android.png
-  #image_dark_android:  assets/splash-invert-android.png
+  image_android: assets/images/icon/dv_icon_1_light_transparent_small.png
+  image_dark_android: assets/images/icon/dv_icon_1_dark_transparent_small.png
   #image_ios:           assets/splash-ios.png
   #image_dark_ios:      assets/splash-invert-ios.png
   #image_web:           assets/splash-web.gif
@@ -142,8 +142,8 @@ flutter_native_splash:
     # with background: 960×960 px (fit within circle 640px in diameter)
     # without background: 1152×1152 px (fit within circle 768px in diameter)
     # ensure that the most important design elements of your image are placed within a circular area
-    image: assets/images/splash/dv_icon_1_light_transparent_large.png
-    image_dark: assets/images/splash/dv_icon_1_dark_transparent_large.png
+    image: assets/images/splash/dv_icon_1_light_transparent_extralarge.png
+    image_dark: assets/images/splash/dv_icon_1_dark_transparent_extralarge.png
 
     # center-logo background color
     icon_background_color: "#ffffff"
