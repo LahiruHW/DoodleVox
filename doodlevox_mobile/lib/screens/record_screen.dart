@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:doodlevox_mobile/widgets/shared/dv_buttons.dart';
 import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
 import 'package:doodlevox_mobile/styles/dv_record_screen_style.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_secondary_button.dart';
 
 class RecordScreen extends StatelessWidget {
   const RecordScreen({super.key});
@@ -130,13 +131,11 @@ class RecordScreen extends StatelessWidget {
                   onPressed: () => audio.recordAgain(),
                 ),
                 const SizedBox(height: 12),
-                Tooltip(
-                  message: 'Coming soon',
-                  child: DVDisabledButton(
-                    label: 'Send to DAW',
-                    icon: Icons.send,
-                    tooltip: 'Coming soon',
-                  ),
+                DVPrimaryButton(
+                  label: 'Send to DAW',
+                  icon: Icons.send,
+                  disabled: true,
+                  feedbackMessage: 'Send to DAW is coming soon',
                 ),
               ],
               const SizedBox(height: 32),

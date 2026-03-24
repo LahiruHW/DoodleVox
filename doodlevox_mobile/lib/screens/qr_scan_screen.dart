@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:doodlevox_mobile/widgets/dv_logo.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
-import 'package:doodlevox_mobile/widgets/shared/dv_buttons.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_secondary_button.dart';
 
 class QRScanScreen extends StatefulWidget {
   const QRScanScreen({super.key});
