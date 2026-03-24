@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:doodlevox_mobile/widgets/dv_logo.dart';
+import 'package:doodlevox_mobile/utils/dv_app_info.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_secondary_button.dart';
@@ -168,6 +169,12 @@ class _QRScanScreenState extends State<QRScanScreen> {
                 onPressed: _continueWithoutConnecting,
               ),
               const SizedBox(height: 32),
+              Text(
+                'v${DVAppInfo.version} (build ${DVAppInfo.buildNumber})',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withAlpha(60),
+                ),
+              ),
             ],
           ),
         ),

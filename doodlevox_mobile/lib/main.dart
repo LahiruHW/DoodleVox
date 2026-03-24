@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:doodlevox_mobile/utils/dv_router.dart';
 import 'package:doodlevox_mobile/styles/dv_themes.dart';
+import 'package:doodlevox_mobile/utils/dv_app_info.dart';
 import 'package:doodlevox_mobile/utils/dv_shared_prefs.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:doodlevox_mobile/providers/dv_prefs_provider.dart';
@@ -28,10 +29,10 @@ void main() async {
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   log.info("Loading dependencies...");
-
-  // Initialize shared preferences
-  await DVSharedPrefs.init();
-
+  await Future.wait([
+    DVSharedPrefs.init(),
+    DVAppInfo.init(),
+  ]);
   Future.delayed(const Duration(seconds: 2), () {
     FlutterNativeSplash.remove();
   });
