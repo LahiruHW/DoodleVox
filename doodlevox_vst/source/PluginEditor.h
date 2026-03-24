@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "QRCodeComponent.h"
 #include "DragClipComponent.hpp"
 
 //==============================================================================
@@ -26,8 +27,8 @@ private:
     DoodleVoxVSTAudioProcessor &processorRef;
 
     juce::Label statusLabel;
-    juce::Label ipLabel;
-    juce::TextButton dragButton { "Drag Clip To DAW" };
+    juce::Label urlLabel;      // small text URL shown below the QR code
+    QRCodeComponent qrCode;
     DragClipComponent dragClip;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DoodleVoxVSTAudioProcessorEditor)

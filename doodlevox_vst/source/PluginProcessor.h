@@ -42,10 +42,17 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    /** Returns "http://<local-ip>:5000" — the URL the mobile app should POST audio to. */
+    juce::String getServerUrl() const
+    {
+        return "http://" + juce::IPAddress::getLocalAddress().toString() + ":5000";
+    }
+
     enum class ReceiverState { Idle , Receiving };
     std::atomic<ReceiverState> receiverState { ReceiverState::Idle };
     juce::File lastReceivedFile;
     std::atomic<bool> newFileReady { false };
+    std::atomic<bool> clientEverConnected { false };
 
 private:
 
@@ -83,7 +90,7 @@ private:
 
         void handleClient(juce::StreamingSocket* socket)
         {
-            
+            processor.clientEverConnected = true;
             processor.receiverState = ReceiverState::Receiving;
             DBG("Client connected");
             
@@ -136,6 +143,8 @@ private:
             if (contentLength <= 0)
             {
                 DBG("Invalid content length");
+                const char* resp = "HTTP/1.1 400 Bad Request\r\nContent-Length: 3\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nErr";
+                socket->write(resp, (int)strlen(resp));
                 return;
             }
             DBG("Content-Length = " + juce::String(contentLength));
@@ -214,6 +223,8 @@ private:
             if (reader == nullptr)
             {
                 DBG("Unsupported or invalid audio format");
+                const char* resp = "HTTP/1.1 415 Unsupported Media Type\r\nContent-Length: 16\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nUnsupported format";
+                socket->write(resp, (int)strlen(resp));
                 processor.receiverState = ReceiverState::Idle;
                 return;
             }
@@ -281,6 +292,11 @@ private:
 #if JUCE_DEBUG
             outputFile.revealToUser();
 #endif
+            // Send HTTP 200 OK before signalling the UI so the mobile client
+            // receives confirmation before the connection closes.
+            const char* okResp = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nOK";
+            socket->write(okResp, (int)strlen(okResp));
+
             processor.lastReceivedFile = outputFile;
             processor.newFileReady = true;
             processor.receiverState = ReceiverState::Idle;

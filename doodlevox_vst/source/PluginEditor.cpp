@@ -5,42 +5,30 @@
 DoodleVoxVSTAudioProcessorEditor::DoodleVoxVSTAudioProcessorEditor (DoodleVoxVSTAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p), dragClip(p)
 {
+    setSize (320, 400);
 
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (300, 200);
+    // ── Status label ──────────────────────────────────────────────────────────
+    statusLabel.setText ("Waiting for connection...", juce::dontSendNotification);
+    statusLabel.setJustificationType (juce::Justification::centred);
+    statusLabel.setFont (juce::FontOptions (16.0f));
+    addAndMakeVisible (statusLabel);
 
-    // add status label to the window
-    statusLabel.setText("Waiting for connection...", juce::dontSendNotification);
-    statusLabel.setJustificationType(juce::Justification::centred);
-    statusLabel.setFont(juce::FontOptions(18.0f));
-    addAndMakeVisible(statusLabel);
+    // ── QR code ───────────────────────────────────────────────────────────────
+    qrCode.setUrl (processorRef.getServerUrl());
+    addAndMakeVisible (qrCode);
 
-    // Detect local IP & add IP address text to the window
-    juce::String ipText = "IP not found";
-    auto addresses = juce::IPAddress::getAllAddresses();
-    // for (auto& addr : addresses)
-    // {
-    //     if (!addr.isLoopback())
-    //     {
-    //         ipText = addr.toString();
-    //         break;
-    //     }
-    //     break;
-    // }
-    ipText = addresses[0].getLocalAddress().toString();
-    
-    ipLabel.setText("Send audio to:\n" + ipText + ":5000", juce::dontSendNotification);
-    ipLabel.setJustificationType(juce::Justification::centred);
-    ipLabel.setFont(juce::FontOptions(14.0f));
-    addAndMakeVisible(ipLabel);
-    
-    // drag clip
-    addAndMakeVisible(dragClip);
-    dragClip.setVisible(false);
-    
-    startTimer(100); // check every 100 ms
-    // startTimerHz(10); // UI update rate
+    // ── URL text label (below QR) ─────────────────────────────────────────────
+    urlLabel.setText ("Scan to connect:\n" + processorRef.getServerUrl(),
+                       juce::dontSendNotification);
+    urlLabel.setJustificationType (juce::Justification::centred);
+    urlLabel.setFont (juce::FontOptions (12.0f));
+    addAndMakeVisible (urlLabel);
+
+    // ── Drag clip component ───────────────────────────────────────────────────
+    addAndMakeVisible (dragClip);
+    dragClip.setVisible (false);
+
+    startTimer (100);
 }
 
 DoodleVoxVSTAudioProcessorEditor::~DoodleVoxVSTAudioProcessorEditor()
@@ -49,13 +37,20 @@ DoodleVoxVSTAudioProcessorEditor::~DoodleVoxVSTAudioProcessorEditor()
 
 void DoodleVoxVSTAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    auto area = getLocalBounds().reduced (8);
 
-    auto area = getLocalBounds();
-    statusLabel.setBounds(area.removeFromTop(50));
-    ipLabel.setBounds(area.removeFromTop(40));
-    dragClip.setBounds(area.reduced(20));
+    statusLabel.setBounds (area.removeFromTop (36));
+    area.removeFromTop (4);
+
+    // Reserve a square region for the QR code (as large as will fit the width).
+    const int qrDim = juce::jmin (area.getWidth(), area.getHeight() - 60);
+    qrCode.setBounds (area.removeFromTop (qrDim));
+    area.removeFromTop (4);
+
+    urlLabel.setBounds (area.removeFromTop (36));
+    area.removeFromTop (4);
+
+    dragClip.setBounds (area.reduced (4));
 }
 
 //==============================================================================
@@ -79,23 +74,30 @@ void DoodleVoxVSTAudioProcessorEditor::paint (juce::Graphics& g)
 void DoodleVoxVSTAudioProcessorEditor::timerCallback()
 {
     auto& p = static_cast<DoodleVoxVSTAudioProcessor&>(processor);
-    if (p.receiverState == DoodleVoxVSTAudioProcessor::ReceiverState::Receiving) {
-        statusLabel.setText("Receiving audio...", juce::dontSendNotification);
+
+    if (p.receiverState == DoodleVoxVSTAudioProcessor::ReceiverState::Receiving)
+    {
+        statusLabel.setText ("Receiving audio...", juce::dontSendNotification);
     }
-    else {
-        statusLabel.setText("Status: Waiting", juce::dontSendNotification);
+    else
+    {
+        statusLabel.setText ("Scan QR code to connect", juce::dontSendNotification);
     }
 
-    // Check if new audio file arrived - drag it into the editor if so
+    // Refresh URL label / QR code in case the IP has changed (e.g. on reconnect).
+    const juce::String url = p.getServerUrl();
+    if (urlLabel.getText() != "Scan to connect:\n" + url)
+    {
+        urlLabel.setText ("Scan to connect:\n" + url, juce::dontSendNotification);
+        qrCode.setUrl (url);
+    }
+
     if (p.newFileReady)
     {
         p.newFileReady = false;
-        
-        dragClip.setVisible(true);
-        statusLabel.setText("Clip Ready - Drag Below", juce::dontSendNotification);
-
-        DBG("Dragged file into DAW");
+        dragClip.setVisible (true);
+        statusLabel.setText ("Clip ready \xe2\x80\x94 drag to DAW", juce::dontSendNotification);
     }
-    
+
     repaint();
 }

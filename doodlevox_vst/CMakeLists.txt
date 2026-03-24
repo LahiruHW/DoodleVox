@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.23.1)
 
+# Include CPM for package management
+include("${CMAKE_CURRENT_SOURCE_DIR}/modules/cmake-includes/CPM.cmake")
+
 # General setup
 set(PROJECT_NAME "DoodleVox")
 set(CURRENT_VERSION "0.0.1")
@@ -135,6 +138,22 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE
 target_include_directories("${PROJECT_NAME}" PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/source"
 )
+
+# ── QR Code generator (nayuki/QR-Code-generator, BSD-2-Clause) ────────────────
+CPMAddPackage(
+    NAME qrcodegen
+    GITHUB_REPOSITORY nayuki/QR-Code-generator
+    GIT_TAG v1.8.0
+    DOWNLOAD_ONLY YES
+)
+if(qrcodegen_ADDED)
+    target_sources("${PROJECT_NAME}" PRIVATE
+        "${qrcodegen_SOURCE_DIR}/cpp/qrcodegen.cpp"
+    )
+    target_include_directories(SharedCode INTERFACE
+        "${qrcodegen_SOURCE_DIR}/cpp"
+    )
+endif()
 
 # Generate a consolidated JuceHeader.h for convenience (allows `#include <JuceHeader.h>`)
 juce_generate_juce_header("${PROJECT_NAME}")
