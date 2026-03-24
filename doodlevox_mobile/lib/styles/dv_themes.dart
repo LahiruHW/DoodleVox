@@ -34,12 +34,29 @@ class DVTheme {
   );
 
   static ThemeData lightTheme = ThemeData(
+    scaffoldBackgroundColor: secondaryColor,
     colorScheme: lightColorScheme,
     fontFamily: 'Inter',
     splashColor: Colors.transparent,
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
     textTheme: DVTextTheme.globalTextTheme,
+    dialogTheme: const DialogThemeData(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      titleTextStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: neutralColor,
+      ),
+      contentTextStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: neutralColor,
+      ),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(borderRadius: .zero),
@@ -99,12 +116,29 @@ class DVTheme {
   );
 
   static ThemeData darkTheme = ThemeData(
+    scaffoldBackgroundColor: neutralColor,
     colorScheme: darkColorScheme,
     fontFamily: 'Inter',
     splashColor: Colors.transparent,
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
     textTheme: DVTextTheme.globalTextTheme,
+    dialogTheme: const DialogThemeData(
+      backgroundColor: Color(0xFF1E1E1E),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      titleTextStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: secondaryColor,
+      ),
+      contentTextStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: secondaryColor,
+      ),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(borderRadius: .zero),
@@ -123,7 +157,6 @@ class DVTheme {
     cardTheme: const CardThemeData(
       shape: RoundedRectangleBorder(borderRadius: .zero),
     ),
-    scaffoldBackgroundColor: neutralColor,
     appBarTheme: AppBarTheme(
       centerTitle: true,
       elevation: 0,

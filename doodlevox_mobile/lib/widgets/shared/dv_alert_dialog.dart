@@ -7,11 +7,13 @@ class DVAlertDialog {
     required String content,
     String confirmText = 'OK',
     String? cancelText,
+    bool barrierDismissible = true,
   }) {
     return showDialog<bool>(
       context: context,
+      barrierDismissible: barrierDismissible,
       builder: (context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: const RoundedRectangleBorder(borderRadius: .zero),
         title: Text(title),
         content: Text(content),
         actions: [

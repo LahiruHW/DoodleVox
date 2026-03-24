@@ -5,6 +5,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:doodlevox_mobile/widgets/dv_logo.dart';
 import 'package:doodlevox_mobile/utils/dv_app_info.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_alert_dialog.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_secondary_button.dart';
 
@@ -55,6 +56,30 @@ class _QRScanScreenState extends State<QRScanScreen> {
   void _continueWithoutConnecting() {
     _log.info('Continuing without DAW connection');
     context.go('/main/record');
+  }
+
+  void _showNoteDialog() {
+    final a = """
+At the moment, DoodleVox is in its early stages and thus, some features are still in development as we are still working on the DAW integration. 
+
+However, you can still explore the app and use the recording features without connecting to a DAW.
+
+DoodleVox is not just an Audio Recorder, but a tool intended for music producers to quickly capture ideas without breaking their creative flow.
+    """;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DVAlertDialog.show(
+        context,
+        title: 'Still Doodling...',
+        content: a,
+        barrierDismissible: false,
+      );
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _showNoteDialog();
   }
 
   @override
