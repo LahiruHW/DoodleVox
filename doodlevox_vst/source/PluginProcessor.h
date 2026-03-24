@@ -42,10 +42,10 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    /** Returns "http://<local-ip>:5000" — the URL the mobile app should POST audio to. */
+    /** Returns "http://<local-ip>:5000?token=..." — the URL the mobile app should connect to. */
     juce::String getServerUrl() const
     {
-        return "http://" + juce::IPAddress::getLocalAddress().toString() + ":5000";
+        return "http://" + juce::IPAddress::getLocalAddress().toString() + ":5000?token=" + sessionToken;
     }
 
     enum class ReceiverState { Idle , Receiving };
@@ -53,6 +53,9 @@ public:
     juce::File lastReceivedFile;
     std::atomic<bool> newFileReady { false };
     std::atomic<bool> clientEverConnected { false };
+    std::atomic<bool> sessionActive { false };
+    juce::String sessionToken;
+    juce::File sessionDir;
 
 private:
 
@@ -90,10 +93,6 @@ private:
 
         void handleClient(juce::StreamingSocket* socket)
         {
-            processor.clientEverConnected = true;
-            processor.receiverState = ReceiverState::Receiving;
-            DBG("Client connected");
-            
             // ==================================================================================
             // RECEIVING HEADER =================================================================
             // ==================================================================================
@@ -124,13 +123,66 @@ private:
 
             DBG("HEADERS:\n" + headerString);
             
+            auto lines = juce::StringArray::fromLines(headerString);
+            
+            if (lines.isEmpty()) return;
+            
             // ==================================================================================
-            // VALIDATING PAYLOAD (using Conent-Length) =========================================
+            // PARSE REQUEST LINE & VALIDATE SESSION TOKEN =====================================
+            // ==================================================================================
+            
+            auto requestLine = lines[0];
+            auto method = requestLine.upToFirstOccurrenceOf(" ", false, false).trim();
+            auto urlPart = requestLine.fromFirstOccurrenceOf(" ", false, false)
+                                      .upToFirstOccurrenceOf(" ", false, false).trim();
+            
+            juce::String requestToken;
+            if (urlPart.contains("token="))
+            {
+                requestToken = urlPart.fromFirstOccurrenceOf("token=", false, false);
+                if (requestToken.contains("&"))
+                    requestToken = requestToken.upToFirstOccurrenceOf("&", false, false);
+            }
+            
+            if (requestToken != processor.sessionToken)
+            {
+                DBG("Invalid session token: " + requestToken);
+                const char* resp = "HTTP/1.1 403 Forbidden\r\nContent-Length: 9\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nForbidden";
+                socket->write(resp, (int)strlen(resp));
+                return;
+            }
+            
+            processor.clientEverConnected = true;
+            processor.sessionActive = true;
+            
+            // ==================================================================================
+            // HANDLE GET (HANDSHAKE) ==========================================================
+            // ==================================================================================
+            
+            if (method.equalsIgnoreCase("GET"))
+            {
+                DBG("Handshake successful");
+                const char* resp = "HTTP/1.1 200 OK\r\nContent-Length: 9\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nConnected";
+                socket->write(resp, (int)strlen(resp));
+                return;
+            }
+            
+            if (!method.equalsIgnoreCase("POST"))
+            {
+                const char* resp = "HTTP/1.1 405 Method Not Allowed\r\nContent-Length: 18\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nMethod Not Allowed";
+                socket->write(resp, (int)strlen(resp));
+                return;
+            }
+            
+            processor.receiverState = ReceiverState::Receiving;
+            DBG("Receiving audio upload...");
+            
+            // ==================================================================================
+            // VALIDATING PAYLOAD (using Content-Length) ========================================
             // ==================================================================================
 
             // Extract Content-Length
             int contentLength = 0;
-            auto lines = juce::StringArray::fromLines(headerString);
             for (auto& line : lines)
             {
                 if (line.startsWithIgnoreCase("Content-Length:"))
@@ -236,12 +288,10 @@ private:
             // WRITE AS WAV
             // ==================================================================================
 
-            auto filename =
-                "clip_" + juce::Time::getCurrentTime().formatted("%Y%m%d_%H%M%S") + ".wav";
+            juce::File outputFile = processor.sessionDir.getChildFile("clip.wav");
 
-            juce::File outputFile =
-                juce::File::getSpecialLocation(juce::File::tempDirectory)
-                .getChildFile(filename);
+            if (outputFile.existsAsFile())
+                outputFile.deleteFile();
 
             auto outStream = outputFile.createOutputStream();
 
@@ -288,10 +338,11 @@ private:
                                                0,
                                                bufferData.getNumSamples());
 
+            writer.reset();  // flush and close the file
+            reader.reset();
+
             DBG("Audio saved to: " + outputFile.getFullPathName());
-#if JUCE_DEBUG
-            outputFile.revealToUser();
-#endif
+
             // Send HTTP 200 OK before signalling the UI so the mobile client
             // receives confirmation before the connection closes.
             const char* okResp = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nOK";

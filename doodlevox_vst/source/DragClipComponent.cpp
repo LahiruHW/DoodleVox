@@ -16,11 +16,16 @@ DragClipComponent::DragClipComponent(DoodleVoxVSTAudioProcessor& p)
 
 void DragClipComponent::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::darkgrey);
-    g.setColour(juce::Colours::white);
+    g.fillAll(juce::Colour(0xFF1A1A1A));
 
-    g.drawFittedText("Drag Clip To DAW",
-                     getLocalBounds(),
+    // Gold border to indicate draggable area
+    g.setColour(juce::Colour(0xFFFFB800));
+    g.drawRect(getLocalBounds(), 2);
+
+    g.setColour(juce::Colours::white);
+    g.setFont(juce::FontOptions(14.0f));
+    g.drawFittedText("Drag clip to DAW",
+                     getLocalBounds().reduced(4),
                      juce::Justification::centred,
                      1);
 }

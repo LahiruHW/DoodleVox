@@ -2,8 +2,8 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "QRCodeComponent.h"
-#include "DragClipComponent.hpp"
+#include "ConnectPage.h"
+#include "SessionPage.h"
 
 //==============================================================================
 class DoodleVoxVSTAudioProcessorEditor final : public juce::AudioProcessorEditor,
@@ -22,14 +22,10 @@ private:
 
     void timerCallback() override;
 
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     DoodleVoxVSTAudioProcessor &processorRef;
 
-    juce::Label statusLabel;
-    juce::Label urlLabel;      // small text URL shown below the QR code
-    QRCodeComponent qrCode;
-    DragClipComponent dragClip;
+    ConnectPage connectPage;
+    SessionPage sessionPage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DoodleVoxVSTAudioProcessorEditor)
 };

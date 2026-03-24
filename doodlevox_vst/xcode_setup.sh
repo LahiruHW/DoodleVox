@@ -10,3 +10,6 @@ cd xcode-build
 
 # 3. generate Xcode project
 cmake -G Xcode ..
+
+# running the build
+cmake --build "/Users/lahiruhw/Documents/My PORTFOLIO/Apps/DoodleVox/doodlevox_vst/build" --config Debug --target all -j 10 --

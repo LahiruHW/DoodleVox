@@ -12,6 +12,13 @@ DoodleVoxVSTAudioProcessor::DoodleVoxVSTAudioProcessor()
                      #endif
                        )
 {
+    sessionToken = juce::Uuid().toDashedString().substring(0, 8);
+    sessionDir = juce::File::getSpecialLocation(juce::File::tempDirectory)
+                    .getChildFile("DoodleVox_" + sessionToken);
+    sessionDir.createDirectory();
+
+    DBG("Session token: " + sessionToken);
+    DBG("Session dir: " + sessionDir.getFullPathName());
     DBG("Processor constructed");
     serverThread.startThread();
 }
@@ -20,6 +27,9 @@ DoodleVoxVSTAudioProcessor::~DoodleVoxVSTAudioProcessor()
 {
     DBG("Processor deconstructed");
     serverThread.stopThread(1000);
+
+    if (sessionDir.isDirectory())
+        sessionDir.deleteRecursively();
 }
 
 //==============================================================================
