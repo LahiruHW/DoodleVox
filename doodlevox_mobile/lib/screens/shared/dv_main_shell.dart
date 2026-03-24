@@ -10,6 +10,11 @@ class DVMainShell extends StatelessWidget {
 
   final StatefulNavigationShell navigationShell;
 
+  void onDestinationSelected(int index) => navigationShell.goBranch(
+    index,
+    initialLocation: index == navigationShell.currentIndex,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,12 +22,7 @@ class DVMainShell extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
-        onTap: (index) {
-          navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          );
-        },
+        onTap: onDestinationSelected,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.mic_outlined),
