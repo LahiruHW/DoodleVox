@@ -34,7 +34,7 @@ class DVPrimaryButton extends StatelessWidget {
           ? () => DVSnackbar.show(
               context,
               message: feedbackMessage!,
-              type: DVSnackbarType.info,
+              type: .info,
               duration: const Duration(seconds: 2),
               position: feedbackPosition == .top ? .top : .bottom,
             )
@@ -49,9 +49,7 @@ class DVPrimaryButton extends StatelessWidget {
             foregroundColor: style.primaryButtonTextColor,
             disabledBackgroundColor: style.disabledButtonColor,
             disabledForegroundColor: style.disabledButtonTextColor,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
+            shape: const RoundedRectangleBorder(borderRadius: .zero),
           ),
           child: isLoading
               ? SizedBox(

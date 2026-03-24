@@ -53,9 +53,7 @@ class DVSnackbar {
           ],
         ),
         backgroundColor: bgColor,
-        behavior: position == .top
-            ? SnackBarBehavior.floating
-            : SnackBarBehavior.fixed,
+        behavior: position == .top ? .floating : .fixed,
         margin: position == .top
             ? EdgeInsets.only(
                 left: 10,
