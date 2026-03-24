@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:doodlevox_mobile/styles/dv_appbar_style.dart';
 import 'package:doodlevox_mobile/styles/dv_button_style.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
 import 'package:doodlevox_mobile/styles/dv_snackbar_style.dart';
-import 'package:doodlevox_mobile/styles/dv_bottom_nav_style.dart';
 import 'package:doodlevox_mobile/styles/dv_record_screen_style.dart';
 
 class DVTheme {
@@ -38,35 +36,61 @@ class DVTheme {
   static ThemeData lightTheme = ThemeData(
     colorScheme: lightColorScheme,
     fontFamily: 'Inter',
+    splashColor: Colors.transparent,
+    splashFactory: NoSplash.splashFactory,
+    highlightColor: Colors.transparent,
     textTheme: DVTextTheme.globalTextTheme,
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: const RoundedRectangleBorder(borderRadius: .zero),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: const RoundedRectangleBorder(borderRadius: .zero),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: const RoundedRectangleBorder(borderRadius: .zero),
       ),
     ),
     cardTheme: const CardThemeData(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      shape: RoundedRectangleBorder(borderRadius: .zero),
     ),
     appBarTheme: const AppBarTheme(
       centerTitle: true,
       elevation: 0,
+      backgroundColor: Colors.white,
+      foregroundColor: neutralColor,
+      titleTextStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: neutralColor,
+      ),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      elevation: 0,
       type: BottomNavigationBarType.fixed,
+      enableFeedback: false,
+      backgroundColor: Colors.white,
+      selectedItemColor: primaryColor,
+      unselectedItemColor: tertiaryColor,
+      selectedLabelStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: primaryColor,
+      ),
+      unselectedLabelStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        color: tertiaryColor,
+      ),
     ),
     extensions: {
-      DVAppBarStyle.light,
-      DVBottomNavStyle.light,
       DVButtonStyle.light,
       DVQrScanStyle.light,
       DVRecordScreenStyle.light,
@@ -77,24 +101,27 @@ class DVTheme {
   static ThemeData darkTheme = ThemeData(
     colorScheme: darkColorScheme,
     fontFamily: 'Inter',
+    splashColor: Colors.transparent,
+    splashFactory: NoSplash.splashFactory,
+    highlightColor: Colors.transparent,
     textTheme: DVTextTheme.globalTextTheme,
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: const RoundedRectangleBorder(borderRadius: .zero),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: const RoundedRectangleBorder(borderRadius: .zero),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: const RoundedRectangleBorder(borderRadius: .zero),
       ),
     ),
     cardTheme: const CardThemeData(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      shape: RoundedRectangleBorder(borderRadius: .zero),
     ),
     scaffoldBackgroundColor: neutralColor,
     appBarTheme: AppBarTheme(
@@ -102,16 +129,33 @@ class DVTheme {
       elevation: 0,
       backgroundColor: neutralColor,
       foregroundColor: secondaryColor,
+      titleTextStyle: const TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: secondaryColor,
+      ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      elevation: 0,
       type: BottomNavigationBarType.fixed,
       backgroundColor: neutralColor,
       selectedItemColor: primaryColor,
       unselectedItemColor: tertiaryColor,
+      selectedLabelStyle: const TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: primaryColor,
+      ),
+      unselectedLabelStyle: const TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        color: tertiaryColor,
+      ),
     ),
     extensions: {
-      DVAppBarStyle.dark,
-      DVBottomNavStyle.dark,
       DVButtonStyle.dark,
       DVQrScanStyle.dark,
       DVRecordScreenStyle.dark,
