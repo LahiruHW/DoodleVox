@@ -136,6 +136,7 @@ class RecordScreen extends StatelessWidget {
                   icon: Icons.send,
                   disabled: true,
                   feedbackMessage: 'Send to DAW is coming soon',
+                  feedbackPosition: .top,
                 ),
               ],
               const SizedBox(height: 32),

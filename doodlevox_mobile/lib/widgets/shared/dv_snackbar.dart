@@ -3,11 +3,14 @@ import 'package:doodlevox_mobile/styles/dv_snackbar_style.dart';
 
 enum DVSnackbarType { info, error, success }
 
+enum DVSnackbarPosition { top, bottom }
+
 class DVSnackbar {
   static void show(
     BuildContext context, {
     required String message,
-    DVSnackbarType type = DVSnackbarType.info,
+    DVSnackbarType type = .info,
+    DVSnackbarPosition position = .bottom,
     Duration duration = const Duration(seconds: 3),
   }) {
     final style = Theme.of(context).extension<DVSnackbarStyle>()!;
@@ -50,8 +53,17 @@ class DVSnackbar {
           ],
         ),
         backgroundColor: bgColor,
-        behavior: SnackBarBehavior.floating,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        behavior: position == .top
+            ? SnackBarBehavior.floating
+            : SnackBarBehavior.fixed,
+        margin: position == .top
+            ? EdgeInsets.only(
+                left: 10,
+                right: 10,
+                bottom: MediaQuery.of(context).size.height - 240,
+              )
+            : null,
+        shape: const RoundedRectangleBorder(borderRadius: .zero),
         duration: duration,
       ),
     );

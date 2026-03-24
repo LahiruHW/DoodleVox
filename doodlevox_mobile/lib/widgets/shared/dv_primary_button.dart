@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/styles/dv_button_style.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_snackbar.dart';
 
+enum DvPrimaryButtonFeedbackPosition { top, bottom }
+
 class DVPrimaryButton extends StatelessWidget {
   const DVPrimaryButton({
     super.key,
@@ -11,6 +13,7 @@ class DVPrimaryButton extends StatelessWidget {
     this.isLoading = false,
     this.disabled = false,
     this.feedbackMessage,
+    this.feedbackPosition = .top,
   });
 
   final String label;
@@ -19,6 +22,7 @@ class DVPrimaryButton extends StatelessWidget {
   final bool isLoading;
   final bool disabled;
   final String? feedbackMessage;
+  final DvPrimaryButtonFeedbackPosition feedbackPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +32,12 @@ class DVPrimaryButton extends StatelessWidget {
     return GestureDetector(
       onTap: isDisabled && feedbackMessage != null
           ? () => DVSnackbar.show(
-                context,
-                message: feedbackMessage!,
-                type: DVSnackbarType.info,
-                duration: const Duration(seconds: 2),
-              )
+              context,
+              message: feedbackMessage!,
+              type: DVSnackbarType.info,
+              duration: const Duration(seconds: 2),
+              position: feedbackPosition == .top ? .top : .bottom,
+            )
           : null,
       child: SizedBox(
         width: double.infinity,
@@ -44,8 +49,9 @@ class DVPrimaryButton extends StatelessWidget {
             foregroundColor: style.primaryButtonTextColor,
             disabledBackgroundColor: style.disabledButtonColor,
             disabledForegroundColor: style.disabledButtonTextColor,
-            shape:
-                const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
           ),
           child: isLoading
               ? SizedBox(
@@ -57,7 +63,7 @@ class DVPrimaryButton extends StatelessWidget {
                   ),
                 )
               : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: .center,
                   children: [
                     if (icon != null) ...[
                       Icon(icon, size: 20),
