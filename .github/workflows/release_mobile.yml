@@ -55,7 +55,7 @@ jobs:
               "${{ secrets.ANDROID_STORE_PASSWORD }}" \
               "${{ secrets.ANDROID_KEY_PASSWORD }}" \
               "${{ secrets.ANDROID_KEY_ALIAS }}" \
-              "app/keystore.jks" \
+              "keystore.jks" \
               > android/key.properties
             echo "Release signing configured."
           else
