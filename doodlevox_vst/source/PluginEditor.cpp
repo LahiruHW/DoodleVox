@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Theme.h"
 
 //==============================================================================
 DoodleVoxVSTAudioProcessorEditor::DoodleVoxVSTAudioProcessorEditor (DoodleVoxVSTAudioProcessor& p)
@@ -29,7 +30,7 @@ void DoodleVoxVSTAudioProcessorEditor::resized()
 //==============================================================================
 void DoodleVoxVSTAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colour (0xFF000000));
+    g.fillAll (Theme::black);
 }
 
 void DoodleVoxVSTAudioProcessorEditor::timerCallback()

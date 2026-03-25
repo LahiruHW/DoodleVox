@@ -1,17 +1,18 @@
 #include "LibraryPage.h"
+#include "Theme.h"
 
 LibraryPage::LibraryPage()
 {
     placeholderLabel.setText ("Library\nComing soon", juce::dontSendNotification);
-    placeholderLabel.setFont (juce::FontOptions (16.0f));
+    placeholderLabel.setFont (juce::FontOptions (Theme::fontBody));
     placeholderLabel.setJustificationType (juce::Justification::centred);
-    placeholderLabel.setColour (juce::Label::textColourId, juce::Colour (0xFF888888));
+    placeholderLabel.setColour (juce::Label::textColourId, Theme::grey);
     addAndMakeVisible (placeholderLabel);
 }
 
 void LibraryPage::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colour (0xFF000000));
+    g.fillAll (Theme::black);
 }
 
 void LibraryPage::resized()

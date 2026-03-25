@@ -3,6 +3,12 @@
 #include <JuceHeader.h>
 #include "QRCodeComponent.h"
 
+
+/**
+ * ConnectPage shows the QR code and connection instructions before a session is established. 
+ * 
+ * It also updates the QR code URL if the local IP changes while waiting for a connection.
+ */
 class ConnectPage : public juce::Component
 {
 public:

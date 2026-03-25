@@ -1,15 +1,16 @@
 #include "SessionPage.h"
+#include "Theme.h"
 
 SessionPage::SessionPage (DoodleVoxVSTAudioProcessor& p)
     : receiverPage (p),
       tabs (juce::TabbedButtonBar::TabsAtTop)
 {
-    tabs.addTab ("Receiver", juce::Colour (0xFF111111), &receiverPage, false);
-    tabs.addTab ("Library",  juce::Colour (0xFF111111), &libraryPage,  false);
+    tabs.addTab ("Receiver", Theme::panelGrey, &receiverPage, false);
+    tabs.addTab ("Library",  Theme::panelGrey, &libraryPage,  false);
 
-    tabs.setColour (juce::TabbedComponent::backgroundColourId, juce::Colour (0xFF000000));
-    tabs.setColour (juce::TabbedComponent::outlineColourId,    juce::Colour (0xFF333333));
-    tabs.setTabBarDepth (30);
+    tabs.setColour (juce::TabbedComponent::backgroundColourId, Theme::black);
+    tabs.setColour (juce::TabbedComponent::outlineColourId,    Theme::borderGrey);
+    tabs.setTabBarDepth (Theme::tabBarDepth);
 
     addAndMakeVisible (tabs);
 }
@@ -21,7 +22,7 @@ SessionPage::~SessionPage()
 
 void SessionPage::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colour (0xFF000000));
+    g.fillAll (Theme::black);
 }
 
 void SessionPage::resized()

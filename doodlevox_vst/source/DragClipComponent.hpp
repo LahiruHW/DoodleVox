@@ -13,13 +13,16 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
+/**
+ * A small UI component that appears when a voice note clip is available to drag from the ReceiverPage.
+ */
 class DragClipComponent : public juce::Component
 {
 public:
     DragClipComponent(DoodleVoxVSTAudioProcessor& p);
 
     void paint(juce::Graphics& g) override;
-    void mouseDown(const juce::MouseEvent&) override;
+    void mouseDrag(const juce::MouseEvent&) override;
 
 private:
     DoodleVoxVSTAudioProcessor& processor;

@@ -7,6 +7,7 @@
 //
 
 #include "DragClipComponent.hpp"
+#include "Theme.h"
 #include <JuceHeader.h>
 
 DragClipComponent::DragClipComponent(DoodleVoxVSTAudioProcessor& p)
@@ -16,21 +17,21 @@ DragClipComponent::DragClipComponent(DoodleVoxVSTAudioProcessor& p)
 
 void DragClipComponent::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colour(0xFF1A1A1A));
+    g.fillAll(Theme::darkGrey);
 
     // Gold border to indicate draggable area
-    g.setColour(juce::Colour(0xFFFFB800));
-    g.drawRect(getLocalBounds(), 2);
+    g.setColour(Theme::gold);
+    g.drawRect(getLocalBounds(), Theme::borderWidth);
 
-    g.setColour(juce::Colours::white);
-    g.setFont(juce::FontOptions(14.0f));
+    g.setColour(Theme::white);
+    g.setFont(juce::FontOptions(Theme::fontLabel));
     g.drawFittedText("Drag clip to DAW",
                      getLocalBounds().reduced(4),
                      juce::Justification::centred,
                      1);
 }
 
-void DragClipComponent::mouseDown(const juce::MouseEvent&)
+void DragClipComponent::mouseDrag(const juce::MouseEvent&)
 {
     if (processor.lastReceivedFile.existsAsFile())
     {
@@ -40,7 +41,7 @@ void DragClipComponent::mouseDown(const juce::MouseEvent&)
         if (auto* container =
             juce::DragAndDropContainer::findParentDragContainerFor(this))
         {
-            container->performExternalDragDropOfFiles(files, true);
+            container->performExternalDragDropOfFiles(files, true, this);
         }
     }
 }

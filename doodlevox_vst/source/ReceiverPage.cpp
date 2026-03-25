@@ -1,17 +1,18 @@
 #include "ReceiverPage.h"
+#include "Theme.h"
 
 ReceiverPage::ReceiverPage (DoodleVoxVSTAudioProcessor& p)
     : processor (p), dragClip (p)
 {
     statusLabel.setText ("Waiting for audio...", juce::dontSendNotification);
-    statusLabel.setFont (juce::FontOptions (18.0f));
+    statusLabel.setFont (juce::FontOptions (Theme::fontHeading));
     statusLabel.setJustificationType (juce::Justification::centred);
-    statusLabel.setColour (juce::Label::textColourId, juce::Colour (0xFF888888));
+    statusLabel.setColour (juce::Label::textColourId, Theme::grey);
     addAndMakeVisible (statusLabel);
 
-    infoLabel.setFont (juce::FontOptions (11.0f));
+    infoLabel.setFont (juce::FontOptions (Theme::fontCaption));
     infoLabel.setJustificationType (juce::Justification::centred);
-    infoLabel.setColour (juce::Label::textColourId, juce::Colour (0xFF888888));
+    infoLabel.setColour (juce::Label::textColourId, Theme::grey);
     addAndMakeVisible (infoLabel);
 
     addAndMakeVisible (dragClip);
@@ -22,12 +23,12 @@ ReceiverPage::ReceiverPage (DoodleVoxVSTAudioProcessor& p)
 
 void ReceiverPage::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colour (0xFF000000));
+    g.fillAll (Theme::black);
 }
 
 void ReceiverPage::resized()
 {
-    auto area = getLocalBounds().reduced (16);
+    auto area = getLocalBounds().reduced (Theme::pagePadding);
 
     statusLabel.setBounds (area.removeFromTop (40));
     area.removeFromTop (8);
@@ -56,23 +57,23 @@ void ReceiverPage::timerCallback()
     if (state == State::Receiving)
     {
         statusLabel.setText ("Receiving audio...", juce::dontSendNotification);
-        statusLabel.setColour (juce::Label::textColourId, juce::Colour (0xFFFFB800));
+        statusLabel.setColour (juce::Label::textColourId, Theme::gold);
     }
     else if (newFileFlashCount > 0)
     {
         --newFileFlashCount;
         statusLabel.setText ("Voice note received!", juce::dontSendNotification);
-        statusLabel.setColour (juce::Label::textColourId, juce::Colour (0xFFFFB800));
+        statusLabel.setColour (juce::Label::textColourId, Theme::gold);
     }
     else if (clipAvailable && hasClip)
     {
         statusLabel.setText ("Ready - drag clip to DAW", juce::dontSendNotification);
-        statusLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+        statusLabel.setColour (juce::Label::textColourId, Theme::white);
     }
     else
     {
         statusLabel.setText ("Waiting for audio...", juce::dontSendNotification);
-        statusLabel.setColour (juce::Label::textColourId, juce::Colour (0xFF888888));
+        statusLabel.setColour (juce::Label::textColourId, Theme::grey);
         if (! hasClip)
         {
             clipAvailable = false;
