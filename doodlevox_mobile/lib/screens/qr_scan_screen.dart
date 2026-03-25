@@ -1,11 +1,13 @@
 import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:doodlevox_mobile/widgets/dv_logo.dart';
 import 'package:doodlevox_mobile/utils/dv_app_info.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
-import 'package:doodlevox_mobile/widgets/shared/dv_alert_dialog.dart';
+import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_snackbar.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_secondary_button.dart';
 
@@ -22,6 +24,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
     autoStart: false,
   );
   bool _isScanning = false;
+  bool _isConnecting = false;
   bool _hasNavigated = false;
 
   @override
@@ -31,14 +34,44 @@ class _QRScanScreenState extends State<QRScanScreen> {
   }
 
   void _onQrDetected(BarcodeCapture capture) {
-    if (_hasNavigated) return;
+    if (_hasNavigated || _isConnecting) return;
     final barcode = capture.barcodes.firstOrNull;
     if (barcode?.rawValue != null) {
       _hasNavigated = true;
       _log.info('QR Code scanned: ${barcode!.rawValue}');
       _scannerController.stop();
-      setState(() => _isScanning = false);
+      setState(() {
+        _isScanning = false;
+        _isConnecting = true;
+      });
+      _connectToDaw(barcode.rawValue!);
+    }
+  }
+
+  Future<void> _connectToDaw(String url) async {
+    final dawProvider = context.read<DVDawProvider>();
+    final success = await dawProvider.connect(url);
+
+    if (!mounted) return;
+
+    if (success) {
+      DVSnackbar.show(
+        context,
+        message: 'Connected to DAW',
+        type: .success,
+      );
       context.go('/main/record');
+    } else {
+      DVSnackbar.show(
+        context,
+        message: dawProvider.errorMessage ?? 'Connection failed',
+        type: .error,
+        duration: const Duration(seconds: 4),
+      );
+      setState(() {
+        _isConnecting = false;
+        _hasNavigated = false;
+      });
     }
   }
 
@@ -58,30 +91,6 @@ class _QRScanScreenState extends State<QRScanScreen> {
     context.go('/main/record');
   }
 
-  void _showNoteDialog() {
-    final a = """
-At the moment, DoodleVox is in its early stages and thus, some features are still in development as we are still working on the DAW integration. 
-
-However, you can still explore the app and use the recording features without connecting to a DAW.
-
-DoodleVox is not just an Audio Recorder, but a tool intended for music producers to quickly capture ideas without breaking their creative flow.
-    """;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      DVAlertDialog.show(
-        context,
-        title: 'Still Doodling...',
-        content: a,
-        barrierDismissible: false,
-      );
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _showNoteDialog();
-  }
-
   @override
   Widget build(BuildContext context) {
     final qrStyle = Theme.of(context).extension<DVQrScanStyle>()!;
@@ -89,7 +98,7 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const .symmetric(horizontal: 24),
           child: Column(
             children: [
               const Spacer(flex: 1),
@@ -98,14 +107,14 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
               Text(
                 'Connect to DAW',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: .w600,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Scan the QR code displayed in your DAW to connect',
-                textAlign: TextAlign.center,
+                'Scan the QR code displayed in the DoodleVox plugin to connect',
+                textAlign: .center,
                 style: qrStyle.subtitleTextStyle,
               ),
               const Spacer(flex: 1),
@@ -114,7 +123,48 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
                 child: SizedBox(
                   height: 250,
                   width: 250,
-                  child: _isScanning
+                  child: _isConnecting
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.05),
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.4),
+                              width: 2,
+                            ),
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: .min,
+                              children: [
+                                SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Connecting to DAW...',
+                                  style: qrStyle.instructionTextStyle.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : _isScanning
                       ? Stack(
                           children: [
                             MobileScanner(
@@ -124,7 +174,7 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
                             // Scanner border overlay
                             Container(
                               decoration: BoxDecoration(
-                                border: Border.all(
+                                border: .all(
                                   color: qrStyle.scannerBorderColor,
                                   width: 2,
                                 ),
@@ -138,7 +188,7 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
                                 .colorScheme
                                 .onSurface
                                 .withValues(alpha: 0.05),
-                            border: Border.all(
+                            border: .all(
                               color: Theme.of(context)
                                   .colorScheme
                                   .onSurface
@@ -148,7 +198,7 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
                           ),
                           child: Center(
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisSize: .min,
                               children: [
                                 Icon(
                                   Icons.qr_code_scanner,
@@ -176,7 +226,13 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
               ),
               const Spacer(flex: 2),
               // Buttons
-              if (_isScanning)
+              if (_isConnecting)
+                DVPrimaryButton(
+                  label: 'Connecting...',
+                  icon: Icons.sync,
+                  isLoading: true,
+                )
+              else if (_isScanning)
                 DVSecondaryButton(
                   label: 'Cancel Scan',
                   icon: Icons.close,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_snackbar.dart';
 import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
 import 'package:doodlevox_mobile/styles/dv_record_screen_style.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
@@ -18,15 +20,17 @@ class RecordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).extension<DVRecordScreenStyle>()!;
 
-    return Consumer<DVAudioProvider>(
-      builder: (context, audio, _) {
-        final isRecording = audio.state == RecordingState.recording;
+    return Consumer2<DVAudioProvider, DVDawProvider>(
+      builder: (context, audio, daw, _) {
+        final isRecording = audio.state == .recording;
         final hasRecording = audio.hasRecording;
-        final isPlaying = audio.state == RecordingState.playing;
-        final isPaused = audio.state == RecordingState.paused;
+        final isPlaying = audio.state == .playing;
+        final isPaused = audio.state == .paused;
+        final isDawConnected = daw.isConnected;
+        final isSending = daw.state == .sending;
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const .symmetric(horizontal: 24),
           child: Column(
             children: [
               const Spacer(flex: 2),
@@ -36,7 +40,7 @@ class RecordScreen extends StatelessWidget {
                 width: 16,
                 height: 16,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+                  shape: .circle,
                   color: isRecording
                       ? style.recordingIndicatorColor
                       : style.idleIndicatorColor,
@@ -71,7 +75,7 @@ class RecordScreen extends StatelessWidget {
               // Playback progress indicator
               if (hasRecording && audio.playbackDuration.inMilliseconds > 0)
                 Padding(
-                  padding: const EdgeInsets.only(top: 16),
+                  padding: const .only(top: 16),
                   child: LinearProgressIndicator(
                     value: audio.playbackDuration.inMilliseconds > 0
                         ? audio.playbackPosition.inMilliseconds /
@@ -86,9 +90,9 @@ class RecordScreen extends StatelessWidget {
               // Playback controls (only after recording exists)
               if (hasRecording && !isRecording)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const .only(bottom: 24),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: .center,
                     children: [
                       // Play / Pause button
                       IconButton(
@@ -128,15 +132,49 @@ class RecordScreen extends StatelessWidget {
                 DVSecondaryButton(
                   label: 'Record Again',
                   icon: Icons.refresh,
-                  onPressed: () => audio.recordAgain(),
+                  disabled: isSending,
+                  onPressed: () {
+                    daw.resetToConnected();
+                    audio.recordAgain();
+                  },
                 ),
                 const SizedBox(height: 12),
                 DVPrimaryButton(
-                  label: 'Send to DAW',
-                  icon: Icons.send,
-                  disabled: true,
-                  feedbackMessage: 'Send to DAW is coming soon',
+                  label: isSending
+                      ? 'Sending...'
+                      : daw.state == .sent
+                          ? 'Sent to DAW ✓'
+                          : 'Send to DAW',
+                  icon: isSending
+                      ? Icons.sync
+                      : daw.state == .sent
+                          ? Icons.check
+                          : Icons.send,
+                  isLoading: isSending,
+                  disabled: !isDawConnected || isSending,
+                  feedbackMessage: !isDawConnected
+                      ? 'Not connected to DAW. Scan the QR code first.'
+                      : null,
                   feedbackPosition: .top,
+                  onPressed: () async {
+                    if (audio.recordingPath == null) return;
+                    final success = await daw.sendToDaw(audio.recordingPath!);
+                    if (!context.mounted) return;
+                    if (success) {
+                      DVSnackbar.show(
+                        context,
+                        message: 'Audio sent to DAW',
+                        type: .success,
+                      );
+                    } else {
+                      DVSnackbar.show(
+                        context,
+                        message: daw.errorMessage ?? 'Failed to send',
+                        type: DVSnackbarType.error,
+                        duration: const Duration(seconds: 4),
+                      );
+                    }
+                  },
                 ),
               ],
               const SizedBox(height: 32),

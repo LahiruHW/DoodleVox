@@ -1,10 +1,10 @@
 import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:doodlevox_mobile/screens/qr_scan_screen.dart';
 import 'package:doodlevox_mobile/screens/record_screen.dart';
 import 'package:doodlevox_mobile/screens/library_screen.dart';
-import 'package:doodlevox_mobile/widgets/shared/dv_main_shell.dart';
+import 'package:doodlevox_mobile/screens/qr_scan_screen.dart';
+import 'package:doodlevox_mobile/screens/shared/dv_main_shell.dart';
 
 class DvRouter {
   static final rootNavKey = GlobalKey<NavigatorState>();
@@ -17,7 +17,7 @@ class DvRouter {
     navigatorKey: rootNavKey,
     initialLocation: '/',
     onException: (context, state, exception) {
-      _routeLogger.severe('Routing error: ${exception.toString()}');
+      _routeLogger.severe('GOROUTER EXCEPTION: ${exception.toString()}');
     },
     routes: [
       GoRoute(
