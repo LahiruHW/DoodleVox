@@ -5,13 +5,13 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/modules/cmake-includes/CPM.cmake")
 
 # General setup
 set(PROJECT_NAME "DoodleVox")
-set(CURRENT_VERSION "0.0.1")
+set(CURRENT_VERSION "0.0.3")
 set(PRODUCT_NAME "DoodleVox")
 set(COMPANY_NAME "CreatedByCAPSLOCK")
 set(BUNDLE_ID "com.createdbycapslock.DoodleVox")
 set(FORMATS Standalone AU VST3)
 
-project(DoodleVox VERSION 0.0.1)
+project(DoodleVox VERSION ${CURRENT_VERSION})
 
 add_subdirectory(modules/JUCE)
 
