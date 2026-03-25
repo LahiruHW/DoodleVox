@@ -11,6 +11,15 @@ name: Release — doodlevox_mobile
 # When these secrets are absent the Android build falls back to debug signing
 # (suitable for testing, NOT for Play Store submission).
 
+# Required GitHub secret for Play Store deployment:
+#   GOOGLE_PLAY_SERVICE_ACCOUNT_JSON  — plain-text JSON key for a Google Play
+#                                       service account with the "Release manager"
+#                                       role (or at minimum "Releases" permission).
+#                                       See: https://github.com/r0adkll/upload-google-play#setup
+#
+# The deploy-play-store job uploads the AAB to the internal track on every tag
+# push. Change `track` to alpha / beta / production when ready.
+
 on:
   push:
     tags:
@@ -84,6 +93,32 @@ jobs:
           name: android-aab
           path: doodlevox_mobile/build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
+
+  # ─── Deploy to Play Store ─────────────────────────────────────────────────────
+  deploy-play-store:
+    name: Deploy to Play Store (internal track)
+    needs: build-android
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
+
+    steps:
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: android-aab
+          path: artifacts
+
+      - name: Upload AAB to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.createdbycapslock.doodlevox_mobile
+          releaseFiles: artifacts/app-release.aab
+          track: internal
+          releaseName: ${{ github.ref_name }}
+          status: completed
 
   # ─── iOS ─────────────────────────────────────────────────────────────────────
   build-ios:
