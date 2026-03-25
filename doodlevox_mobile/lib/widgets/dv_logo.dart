@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
 
 class DVLogo extends StatelessWidget {
   const DVLogo({
@@ -11,35 +10,16 @@ class DVLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final luminance = Theme.of(context).colorScheme.surface.computeLuminance();
+    final isLightMode = luminance > 0.5;
+    final img = 'dv_icon_1_${isLightMode ? 'light' : 'dark'}_transparent.png';
     return FittedBox(
       fit: .contain,
       child: Image.asset(
-        'assets/images/icon/dv_icon_1_${Theme.of(context).colorScheme.surface.computeLuminance() > 0.5 ? 'light' : 'dark'}_transparent.png',
+        'assets/images/icon/$img',
         width: size,
         height: size,
       ),
-      // child: Text.rich(
-      //   TextSpan(
-      //     children: [
-      //       TextSpan(
-      //         text: 'Doodle',
-      //         style: GoogleFonts.sassyFrass(
-      //           fontSize: 24,
-      //           fontWeight: FontWeight.bold,
-      //           color: Theme.of(context).colorScheme.onSurface,
-      //         ),
-      //       ),
-      //       TextSpan(
-      //         text: 'Vox',
-      //         style: TextStyle(
-      //           fontSize: 24,
-      //           fontWeight: FontWeight.bold,
-      //           color: Theme.of(context).colorScheme.primary,
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 }
