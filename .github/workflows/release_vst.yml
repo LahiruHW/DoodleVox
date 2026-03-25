@@ -10,7 +10,7 @@ name: Release — doodlevox_vst
 on:
   push:
     tags:
-      - "vst-v*"
+      - "vst/v*"
   workflow_dispatch:
 
 jobs:

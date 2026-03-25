@@ -14,7 +14,7 @@ name: Release — doodlevox_mobile
 on:
   push:
     tags:
-      - "mobile-v*"
+      - "mobile/v*"
   workflow_dispatch:
 
 jobs:
