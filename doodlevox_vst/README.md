@@ -192,3 +192,14 @@ The `xcode_setup.sh` script at the repo root automates this.
 5. After the handshake, the Receiver tab shows connection status.
 6. Record and send audio from the mobile app.
 7. Drag the received clip onto a DAW track.
+
+## License
+
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**
+
+This means:
+- You are free to use, modify, and distribute this software.
+- Any modifications you distribute **must** also be released under AGPL-3.0.
+- If you run a modified version on a **network server**, you must make the modified source code available to users of that server.
+
+For the full license text, see [LICENSE](https://github.com/LahiruHW/DoodleVox?tab=AGPL-3.0-1-ov-file#)
