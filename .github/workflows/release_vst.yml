@@ -1,0 +1,177 @@
+name: Release — doodlevox_vst
+
+# Trigger on version tags for the VST plugin, or manually via the GitHub UI.
+#
+# Builds the plugin for all three supported platforms:
+#   macOS   — VST3, AU (AudioUnit), and Standalone (.app) — universal binary (x86_64 + arm64)
+#   Windows — VST3 and Standalone (.exe)
+#   Linux   — VST3 and Standalone
+
+on:
+  push:
+    tags:
+      - "vst-v*"
+  workflow_dispatch:
+
+jobs:
+  # ─── macOS ───────────────────────────────────────────────────────────────────
+  build-macos:
+    name: Build macOS (VST3 + AU + Standalone)
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure CMake
+        working-directory: doodlevox_vst
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        working-directory: doodlevox_vst
+        run: cmake --build build --config Release
+
+      - name: Package artifacts
+        working-directory: doodlevox_vst/build
+        run: |
+          mkdir -p artifacts
+          ARTEFACTS="DoodleVox_artefacts/Release"
+          zip -r artifacts/DoodleVox-macOS-VST3.zip       "$ARTEFACTS/VST3/DoodleVox.vst3"
+          zip -r artifacts/DoodleVox-macOS-AU.zip          "$ARTEFACTS/AU/DoodleVox.component"
+          zip -r artifacts/DoodleVox-macOS-Standalone.zip  "$ARTEFACTS/Standalone/DoodleVox.app"
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          path: doodlevox_vst/build/artifacts/
+          if-no-files-found: error
+
+  # ─── Windows ─────────────────────────────────────────────────────────────────
+  build-windows:
+    name: Build Windows (VST3 + Standalone)
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure CMake
+        working-directory: doodlevox_vst
+        run: cmake -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build
+        working-directory: doodlevox_vst
+        run: cmake --build build --config Release
+
+      - name: Package artifacts
+        working-directory: doodlevox_vst/build
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $a = "DoodleVox_artefacts/Release"
+          Compress-Archive -Path "$a/VST3/DoodleVox.vst3"          -DestinationPath "artifacts/DoodleVox-Windows-VST3.zip"
+          Compress-Archive -Path "$a/Standalone/DoodleVox.exe"     -DestinationPath "artifacts/DoodleVox-Windows-Standalone.zip"
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: doodlevox_vst/build/artifacts/
+          if-no-files-found: error
+
+  # ─── Linux ───────────────────────────────────────────────────────────────────
+  build-linux:
+    name: Build Linux (VST3 + Standalone)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install JUCE system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            ninja-build \
+            libasound2-dev \
+            libfreetype6-dev \
+            libx11-dev \
+            libxinerama-dev \
+            libxrandr-dev \
+            libxcursor-dev \
+            libxcomposite-dev \
+            libglu1-mesa-dev \
+            freeglut3-dev \
+            mesa-common-dev \
+            libcurl4-openssl-dev \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            pkg-config \
+            ladspa-sdk
+
+      - name: Configure CMake
+        working-directory: doodlevox_vst
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        working-directory: doodlevox_vst
+        run: cmake --build build --config Release -- -j$(nproc)
+
+      - name: Package artifacts
+        working-directory: doodlevox_vst/build
+        run: |
+          mkdir -p artifacts
+          ARTEFACTS="DoodleVox_artefacts/Release"
+          zip -r artifacts/DoodleVox-Linux-VST3.zip       "$ARTEFACTS/VST3/DoodleVox.vst3"
+          zip -r artifacts/DoodleVox-Linux-Standalone.zip  "$ARTEFACTS/Standalone/DoodleVox"
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: doodlevox_vst/build/artifacts/
+          if-no-files-found: error
+
+  # ─── GitHub Release ───────────────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4.1.3
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "doodlevox_vst ${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            artifacts/macos-artifacts/DoodleVox-macOS-VST3.zip
+            artifacts/macos-artifacts/DoodleVox-macOS-AU.zip
+            artifacts/macos-artifacts/DoodleVox-macOS-Standalone.zip
+            artifacts/windows-artifacts/DoodleVox-Windows-VST3.zip
+            artifacts/windows-artifacts/DoodleVox-Windows-Standalone.zip
+            artifacts/linux-artifacts/DoodleVox-Linux-VST3.zip
+            artifacts/linux-artifacts/DoodleVox-Linux-Standalone.zip

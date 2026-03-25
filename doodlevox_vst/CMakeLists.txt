@@ -46,11 +46,19 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE INTERNAL "")
 endif()
 
+# Disable auto-copying the plugin to system directories inside CI runners,
+# where write access to the install locations is not guaranteed.
+if(DEFINED ENV{CI})
+    set(COPY_AFTER_BUILD FALSE)
+else()
+    set(COPY_AFTER_BUILD TRUE)
+endif()
+
 # Define the plugin
 juce_add_plugin("${PROJECT_NAME}"
         COMPANY_NAME "${COMPANY_NAME}"
         BUNDLE_ID "${BUNDLE_ID}"
-        COPY_PLUGIN_AFTER_BUILD TRUE
+        COPY_PLUGIN_AFTER_BUILD ${COPY_AFTER_BUILD}
         PLUGIN_MANUFACTURER_CODE Cbcl
         PLUGIN_CODE Dvxp
         FORMATS ${FORMATS}
