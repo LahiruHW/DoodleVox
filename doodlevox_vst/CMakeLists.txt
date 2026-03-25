@@ -51,7 +51,7 @@ endif()
 if(DEFINED ENV{CI})
     set(COPY_AFTER_BUILD FALSE)
 else()
-    set(COPY_AFTER_BUILD TRUE)
+    set(COPY_AFTER_BUILD FALSE)
 endif()
 
 # Define the plugin
@@ -165,3 +165,70 @@ endif()
 
 # Generate a consolidated JuceHeader.h for convenience (allows `#include <JuceHeader.h>`)
 juce_generate_juce_header("${PROJECT_NAME}")
+
+# ── Install rules & CPack installer configuration ─────────────────────────────
+# Build artefacts land under <build>/DoodleVox_artefacts/<config>/
+set(ARTEFACT_DIR "${CMAKE_BINARY_DIR}/DoodleVox_artefacts")
+
+if(APPLE)
+    # macOS: .pkg installer via productbuild
+    # Default install destinations (user can relocate in the installer UI)
+    install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/VST3/DoodleVox.vst3"
+            DESTINATION "Library/Audio/Plug-Ins/VST3"
+            COMPONENT VST3)
+    install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/AU/DoodleVox.component"
+            DESTINATION "Library/Audio/Plug-Ins/Components"
+            COMPONENT AU)
+    install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/Standalone/DoodleVox.app"
+            DESTINATION "Applications"
+            COMPONENT Standalone)
+
+    set(CPACK_GENERATOR "productbuild")
+    set(CPACK_PRODUCTBUILD_IDENTITY_NAME "" CACHE STRING
+        "Developer ID Installer certificate name (leave empty for unsigned)")
+    set(CPACK_PRODUCTBUILD_DOMAINS TRUE)           # enable domain chooser (user/local/system)
+    set(CPACK_PRODUCTBUILD_DOMAINS_USER TRUE)
+    set(CPACK_PRODUCTBUILD_DOMAINS_ROOT TRUE)
+    set(CPACK_PRODUCTBUILD_DOMAINS_ANYWHERE FALSE)
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # Windows: NSIS installer with user-selectable directory
+    install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/VST3/DoodleVox.vst3"
+            DESTINATION "VST3"
+            COMPONENT VST3)
+    install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/Standalone/"
+            DESTINATION "Standalone"
+            COMPONENT Standalone)
+
+    set(CPACK_GENERATOR "NSIS")
+    set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+    set(CPACK_NSIS_MODIFY_PATH OFF)
+    # Default install root – user can change during install
+    set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64\\\\${COMPANY_NAME}")
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Linux: .deb package
+    install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/VST3/DoodleVox.vst3"
+            DESTINATION "lib/vst3"
+            COMPONENT VST3)
+    install(PROGRAMS "${ARTEFACT_DIR}/$<CONFIG>/Standalone/DoodleVox"
+            DESTINATION "bin"
+            COMPONENT Standalone)
+
+    set(CPACK_GENERATOR "DEB")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${COMPANY_NAME}")
+    set(CPACK_DEBIAN_PACKAGE_SECTION "sound")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libasound2, libfreetype6, libx11-6")
+endif()
+
+# Common CPack settings
+set(CPACK_PACKAGE_NAME "${PRODUCT_NAME}")
+set(CPACK_PACKAGE_VENDOR "${COMPANY_NAME}")
+set(CPACK_PACKAGE_VERSION "${CURRENT_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "DoodleVox audio plug-in")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+endif()
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PRODUCT_NAME}")
+
+include(CPack)
