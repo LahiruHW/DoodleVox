@@ -73,12 +73,13 @@ flowchart TD
 ## What's Been Implemented
 
 ### Build System (`CMakeLists.txt`)
-- CMake project (`DoodleVox`, v0.0.1) targeting **Standalone**, **AU**, and **VST3** formats via JUCE 8.0.12.
+- CMake project (`DoodleVox`, v0.0.3) targeting **Standalone**, **AU**, and **VST3** formats via JUCE 8.0.12.
 - Cross-platform: macOS (universal binary `x86_64` + `arm64`, deployment target `10.13` / `11.0` arm64), Linux (WebKit2GTK), Windows (MSVC static runtime).
 - `SharedCode` interface library for shared includes and compile definitions.
 - `AudioPluginData` binary-data target bundling `assets/`.
 - QR code generation via [nayuki/QR-Code-generator](https://github.com/nayuki/QR-Code-generator) v1.8.0 (fetched automatically by CPM).
-- Helper script `xcode_setup.sh` for Xcode project generation.
+- **Plugins are never auto-copied to system directories.** Distribution uses platform-native installers via CPack (macOS `.pkg`, Windows NSIS `.exe`, Linux `.deb`).
+- Helper scripts: `xcode_setup.sh` (Xcode project generation), `package.sh` (one-command build + package).
 
 ### Session Management & TCP Server (`PluginProcessor`)
 - On construction, generates a random **session token** (8-char hex via `juce::Uuid`) and creates a per-session temp directory (`DoodleVox_<token>/`).
@@ -142,21 +143,32 @@ source/
 
 ## Prerequisites
 
-1. CMake (>= 3.22)
-2. A C++ 17 toolchain (Xcode on macOS, MSVC on Windows)
+1. CMake (>= 3.23.1)
+2. A C++17 toolchain (Xcode on macOS, MSVC on Windows, GCC/Clang on Linux)
 3. JUCE modules are included in `modules/JUCE` (no separate download needed)
 4. QR code library is fetched automatically via CPM
 
-## Getting Started
+### Platform-specific extras
+
+| Platform | Extra requirement |
+|----------|-------------------|
+| macOS | Xcode command-line tools (`xcode-select --install`) |
+| Windows | [NSIS](https://nsis.sourceforge.io/) for building the installer |
+| Linux | `libwebkit2gtk-4.0-dev`, `libasound2-dev`, `libfreetype6-dev` |
+
+## Getting Started (Development)
 
 1. Configure the project:
 
    ```bash
-   mkdir -p build && cd build
-   cmake -S .. -B .
+   cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
    ```
 
-   For an Xcode project: `cmake -G "Xcode" ..`
+   For an Xcode project:
+
+   ```bash
+   cmake -S . -B build -G "Xcode"
+   ```
 
 2. Build:
 
@@ -164,9 +176,63 @@ source/
    cmake --build build --config Debug
    ```
 
-3. The built plugin is automatically copied to:
-   - **VST3**: `~/Library/Audio/Plug-Ins/VST3/DoodleVox.vst3`
-   - **AU**: `~/Library/Audio/Plug-Ins/Components/DoodleVox.component`
+3. Build artefacts are written to `build/DoodleVox_artefacts/<config>/` and are **not** copied to system directories. You can run the standalone app directly from there:
+
+   ```
+   build/DoodleVox_artefacts/Debug/Standalone/DoodleVox.app    # macOS
+   build/DoodleVox_artefacts/Debug/Standalone/DoodleVox        # Linux
+   build/DoodleVox_artefacts/Debug/Standalone/DoodleVox.exe    # Windows
+   ```
+
+   To load the plugin in a DAW during development, point your DAW's plugin scan path at:
+   - **VST3**: `build/DoodleVox_artefacts/Debug/VST3/`
+   - **AU** (macOS): `build/DoodleVox_artefacts/Debug/AU/`
+
+## Building Installers
+
+DoodleVox uses **CPack** to produce platform-native installers so end-users can install to a location of their choice.
+
+### Quick method — `package.sh`
+
+```bash
+./package.sh              # Release build (default)
+./package.sh Debug        # Debug build
+```
+
+The script configures, builds, and packages in one step. Installers appear in `build_installer/`.
+
+### Manual method
+
+```bash
+cmake -S . -B build_release -DCMAKE_BUILD_TYPE=Release
+cmake --build build_release --config Release --parallel
+cd build_release && cpack -C Release
+```
+
+### What gets generated
+
+| Platform | Generator | Output | User can choose location? |
+|----------|-----------|--------|---------------------------|
+| macOS | `productbuild` | `.pkg` installer | Yes — install for current user or all users |
+| Windows | `NSIS` | `.exe` installer | Yes — directory chooser dialog |
+| Linux | `DEB` | `.deb` package | Installs to `/usr/lib/vst3` and `/usr/bin` |
+
+### Default install locations (macOS `.pkg`)
+
+| Component | Default path |
+|-----------|-------------|
+| VST3 | `/Library/Audio/Plug-Ins/VST3/DoodleVox.vst3` |
+| AU | `/Library/Audio/Plug-Ins/Components/DoodleVox.component` |
+| Standalone | `/Applications/DoodleVox.app` |
+
+### Signing the macOS installer (optional)
+
+```bash
+cmake -S . -B build_release -DCMAKE_BUILD_TYPE=Release \
+  -DCPACK_PRODUCTBUILD_IDENTITY_NAME="Developer ID Installer: Your Name (TEAMID)"
+cmake --build build_release --config Release --parallel
+cd build_release && cpack -C Release
+```
 
 ## Using Visual Studio Code
 
@@ -177,16 +243,16 @@ source/
 ## macOS / Xcode
 
 ```bash
-cd build && cmake -G "Xcode" ..
-open DoodleVox.xcodeproj
+cmake -S . -B build -G "Xcode"
+open build/DoodleVox.xcodeproj
 ```
 
 The `xcode_setup.sh` script at the repo root automates this.
 
 ## Testing the Plugin
 
-1. Build the project (see above).
-2. Open a DAW (FL Studio, REAPER, Logic Pro, Ableton, etc.) and scan for new plugins.
+1. Build the project (see **Getting Started**).
+2. Open a DAW (FL Studio, REAPER, Logic Pro, Ableton, etc.) and add the build artefact path to the DAW's plugin search directories, or build an installer and run it.
 3. Insert **DoodleVox** on any track.
 4. The QR code page appears — scan with the companion mobile app.
 5. After the handshake, the Receiver tab shows connection status.
@@ -202,4 +268,4 @@ This means:
 - Any modifications you distribute **must** also be released under AGPL-3.0.
 - If you run a modified version on a **network server**, you must make the modified source code available to users of that server.
 
-For the full license text, see [LICENSE](https://github.com/LahiruHW/DoodleVox?tab=AGPL-3.0-1-ov-file#)
+For the full license text, see [LICENSE.txt](LICENSE.txt) or https://www.gnu.org/licenses/agpl-3.0.html.
