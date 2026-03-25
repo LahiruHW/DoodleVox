@@ -25,3 +25,7 @@ doodlevox_vst/xcode-build/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #cmake-build-*
+
+# Google Service Account Files -----------------------------------------------------------
+
+doodlevox-7d43446ced2e.json
