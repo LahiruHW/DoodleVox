@@ -197,20 +197,47 @@ jobs:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
 
-      - name: Upload found installers to release
+      - name: "Debug: list downloaded artifacts"
+        shell: bash
+        run: |
+          echo "Listing artifacts/ before upload"
+          ls -la artifacts || true
+          find artifacts -maxdepth 4 -type f -exec ls -la {} \; || true
+
+      - name: "Upload found installers to release (REST API)"
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
         run: |
-          # Upload any installer files downloaded into the artifacts directory to the release
-          set -e
-          RELEASE_ID=$(jq -r '.id' < <(gh release view "${{ github.ref_name }}" --json id) 2>/dev/null || echo "") || true
-          # If `gh` is not available, fallback to uploading via the action output (softprops leaves assets attached), otherwise attempt to use `gh` to upload
-          if command -v gh >/dev/null 2>&1 && [ -n "$RELEASE_ID" ]; then
-            for f in $(find artifacts -type f -maxdepth 3 -iregex '.*\(pkg\|dmg\|deb\|exe\)$' 2>/dev/null); do
-              echo "Uploading $f to release $RELEASE_ID"
-              gh release upload "${{ github.ref_name }}" "$f" --clobber || true
-            done
-          else
-            echo "gh CLI not available or release not found; assets are still attached as workflow artifacts."
+          set -euo pipefail
+          echo "Looking up release for tag $TAG in $REPO"
+          API_URL="https://api.github.com/repos/$REPO/releases/tags/$TAG"
+          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$API_URL")
+          RELEASE_ID=$(echo "$RESPONSE" | jq -r .id)
+          if [ -z "$RELEASE_ID" ] || [ "$RELEASE_ID" = "null" ]; then
+            echo "Release not found for tag $TAG. Response: $RESPONSE"
+            exit 1
           fi
+          echo "Found release id: $RELEASE_ID"
+
+          UPLOAD_BASE="https://uploads.github.com/repos/$REPO/releases/$RELEASE_ID/assets"
+
+          # Find candidate installer files under artifacts/
+          mapfile -t FILES < <(find artifacts -type f \( -iname '*.pkg' -o -iname '*.dmg' -o -iname '*.deb' -o -iname '*.exe' \) -print)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "No installer files found in artifacts/ to upload."
+            exit 0
+          fi
+
+          for f in "${FILES[@]}"; do
+            NAME=$(basename "$f")
+            echo "Uploading $NAME to release $RELEASE_ID..."
+            curl --fail -s -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$f" "$UPLOAD_BASE?name=$NAME" || {
+                echo "Failed to upload $NAME"; exit 1;
+              }
+            echo "Uploaded $NAME"
+          done
