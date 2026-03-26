@@ -5,7 +5,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/modules/cmake-includes/CPM.cmake")
 
 # General setup
 set(PROJECT_NAME "DoodleVox")
-set(CURRENT_VERSION "0.0.3")
+set(CURRENT_VERSION "0.0.6")
 set(PRODUCT_NAME "DoodleVox")
 set(COMPANY_NAME "CreatedByCAPSLOCK")
 set(BUNDLE_ID "com.createdbycapslock.DoodleVox")
