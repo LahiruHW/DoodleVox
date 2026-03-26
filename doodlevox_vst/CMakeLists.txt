@@ -172,15 +172,20 @@ set(ARTEFACT_DIR "${CMAKE_BINARY_DIR}/DoodleVox_artefacts")
 
 if(APPLE)
     # macOS: .pkg installer via productbuild
-    # Default install destinations (user can relocate in the installer UI)
+    # Use absolute install destinations so the staged package payload
+    # mirrors real system paths. Enable CPACK_SET_DESTDIR so CPack stages
+    # these absolute paths into the package without requiring root when
+    # building the package.
+    set(CPACK_SET_DESTDIR "ON")
+
     install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/VST3/DoodleVox.vst3"
-            DESTINATION "Library/Audio/Plug-Ins/VST3"
+            DESTINATION "/Library/Audio/Plug-Ins/VST3"
             COMPONENT VST3)
     install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/AU/DoodleVox.component"
-            DESTINATION "Library/Audio/Plug-Ins/Components"
+            DESTINATION "/Library/Audio/Plug-Ins/Components"
             COMPONENT AU)
     install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/Standalone/DoodleVox.app"
-            DESTINATION "Applications"
+            DESTINATION "/Applications"
             COMPONENT Standalone)
 
     set(CPACK_GENERATOR "productbuild")
@@ -189,7 +194,7 @@ if(APPLE)
     set(CPACK_PRODUCTBUILD_DOMAINS TRUE)           # enable domain chooser (user/local/system)
     set(CPACK_PRODUCTBUILD_DOMAINS_USER TRUE)
     set(CPACK_PRODUCTBUILD_DOMAINS_ROOT TRUE)
-    set(CPACK_PRODUCTBUILD_DOMAINS_ANYWHERE FALSE)
+    set(CPACK_PRODUCTBUILD_DOMAINS_ANYWHERE TRUE)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Windows: NSIS installer with user-selectable directory
