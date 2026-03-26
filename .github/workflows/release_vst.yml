@@ -35,20 +35,29 @@ jobs:
         working-directory: doodlevox_vst
         run: cmake --build build --config Release
 
-      - name: Package artifacts
-        working-directory: doodlevox_vst/build
+      - name: Create installer (macOS)
+        working-directory: doodlevox_vst
         run: |
-          mkdir -p artifacts
-          ARTEFACTS="DoodleVox_artefacts/Release"
-          zip -r artifacts/DoodleVox-macOS-VST3.zip       "$ARTEFACTS/VST3/DoodleVox.vst3"
-          zip -r artifacts/DoodleVox-macOS-AU.zip          "$ARTEFACTS/AU/DoodleVox.component"
-          zip -r artifacts/DoodleVox-macOS-Standalone.zip  "$ARTEFACTS/Standalone/DoodleVox.app"
+          # Build and package using the project helper script (creates installers via CPack)
+          chmod +x package.sh || true
+          ./package.sh Release
+          # Normalize installer filename(s) for predictable upload
+          mkdir -p build_installer/_published
+          PKG=$(find build_installer -type f -name '*.pkg' -print -quit || true)
+          if [ -n "$PKG" ]; then
+            cp "$PKG" build_installer/_published/DoodleVox-macOS.pkg
+          fi
+          # Also copy any .dmg if produced
+          DMG=$(find build_installer -type f -name '*.dmg' -print -quit || true)
+          if [ -n "$DMG" ]; then
+            cp "$DMG" build_installer/_published/DoodleVox-macOS.dmg
+          fi
 
-      - name: Upload macOS artifacts
+      - name: Upload macOS installers
         uses: actions/upload-artifact@v4
         with:
-          name: macos-artifacts
-          path: doodlevox_vst/build/artifacts/
+          name: macos-installers
+          path: doodlevox_vst/build_installer/_published/
           if-no-files-found: error
 
   # ─── Windows ─────────────────────────────────────────────────────────────────
@@ -72,20 +81,31 @@ jobs:
         working-directory: doodlevox_vst
         run: cmake --build build --config Release
 
-      - name: Package artifacts
-        working-directory: doodlevox_vst/build
+      - name: Ensure NSIS (for installer) is available
+        if: runner.os == 'Windows'
+        run: |
+          choco install nsis -y || true
+
+      - name: Create installer (Windows)
+        working-directory: doodlevox_vst
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          $a = "DoodleVox_artefacts/Release"
-          Compress-Archive -Path "$a/VST3/DoodleVox.vst3"          -DestinationPath "artifacts/DoodleVox-Windows-VST3.zip"
-          Compress-Archive -Path "$a/Standalone/DoodleVox.exe"     -DestinationPath "artifacts/DoodleVox-Windows-Standalone.zip"
+          # Configure and build installer output in build_installer
+          cmake -B build_installer -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build_installer --config Release
+          Push-Location build_installer
+          cpack -C Release || true
+          Pop-Location
+          # Normalize installer for upload
+          New-Item -ItemType Directory -Force -Path build_installer\_published | Out-Null
+          $exe = Get-ChildItem -Path build_installer -Recurse -Filter *.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($exe) { Copy-Item $exe.FullName -Destination build_installer\_published\DoodleVox-Windows-Installer.exe -Force }
 
-      - name: Upload Windows artifacts
+      - name: Upload Windows installers
         uses: actions/upload-artifact@v4
         with:
-          name: windows-artifacts
-          path: doodlevox_vst/build/artifacts/
+          name: windows-installers
+          path: doodlevox_vst/build_installer/_published/
           if-no-files-found: error
 
   # ─── Linux ───────────────────────────────────────────────────────────────────
@@ -131,19 +151,22 @@ jobs:
         working-directory: doodlevox_vst
         run: cmake --build build --config Release -- -j$(nproc)
 
-      - name: Package artifacts
-        working-directory: doodlevox_vst/build
+      - name: Create installer (Linux)
+        working-directory: doodlevox_vst
         run: |
-          mkdir -p artifacts
-          ARTEFACTS="DoodleVox_artefacts/Release"
-          zip -r artifacts/DoodleVox-Linux-VST3.zip       "$ARTEFACTS/VST3/DoodleVox.vst3"
-          zip -r artifacts/DoodleVox-Linux-Standalone.zip  "$ARTEFACTS/Standalone/DoodleVox"
+          chmod +x package.sh || true
+          ./package.sh Release
+          mkdir -p build_installer/_published
+          DEB=$(find build_installer -type f -name '*.deb' -print -quit || true)
+          if [ -n "$DEB" ]; then
+            cp "$DEB" build_installer/_published/DoodleVox-Linux.deb
+          fi
 
-      - name: Upload Linux artifacts
+      - name: Upload Linux installers
         uses: actions/upload-artifact@v4
         with:
-          name: linux-artifacts
-          path: doodlevox_vst/build/artifacts/
+          name: linux-installers
+          path: doodlevox_vst/build_installer/_published/
           if-no-files-found: error
 
   # ─── GitHub Release ───────────────────────────────────────────────────────────
@@ -156,22 +179,33 @@ jobs:
       contents: write
 
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4.1.3
+      - name: Download all installer artifacts
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release and upload installers
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           name: "doodlevox_vst ${{ github.ref_name }}"
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
-          files: |
-            artifacts/macos-artifacts/DoodleVox-macOS-VST3.zip
-            artifacts/macos-artifacts/DoodleVox-macOS-AU.zip
-            artifacts/macos-artifacts/DoodleVox-macOS-Standalone.zip
-            artifacts/windows-artifacts/DoodleVox-Windows-VST3.zip
-            artifacts/windows-artifacts/DoodleVox-Windows-Standalone.zip
-            artifacts/linux-artifacts/DoodleVox-Linux-VST3.zip
-            artifacts/linux-artifacts/DoodleVox-Linux-Standalone.zip
+
+      - name: Upload found installers to release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Upload any installer files downloaded into the artifacts directory to the release
+          set -e
+          RELEASE_ID=$(jq -r '.id' < <(gh release view "${{ github.ref_name }}" --json id) 2>/dev/null || echo "") || true
+          # If `gh` is not available, fallback to uploading via the action output (softprops leaves assets attached), otherwise attempt to use `gh` to upload
+          if command -v gh >/dev/null 2>&1 && [ -n "$RELEASE_ID" ]; then
+            for f in $(find artifacts -type f -maxdepth 3 -iregex '.*\(pkg\|dmg\|deb\|exe\)$' 2>/dev/null); do
+              echo "Uploading $f to release $RELEASE_ID"
+              gh release upload "${{ github.ref_name }}" "$f" --clobber || true
+            done
+          else
+            echo "gh CLI not available or release not found; assets are still attached as workflow artifacts."
+          fi
