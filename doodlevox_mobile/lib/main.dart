@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 import 'package:logging/logging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:doodlevox_mobile/utils/dv_router.dart';
@@ -13,6 +14,7 @@ import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   // initialize logging
   Logger.root.level = Level.ALL;
