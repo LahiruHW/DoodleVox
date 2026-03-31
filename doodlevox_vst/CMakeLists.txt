@@ -5,7 +5,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/modules/cmake-includes/CPM.cmake")
 
 # General setup
 set(PROJECT_NAME "DoodleVox")
-set(CURRENT_VERSION "0.0.9")
+set(CURRENT_VERSION "0.1.0")
 set(PRODUCT_NAME "DoodleVox")
 set(COMPANY_NAME "CreatedByCAPSLOCK")
 set(BUNDLE_ID "com.createdbycapslock.DoodleVox")
@@ -184,9 +184,14 @@ if(APPLE)
     install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/AU/DoodleVox.component"
             DESTINATION "/Library/Audio/Plug-Ins/Components"
             COMPONENT AU)
-    install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/Standalone/DoodleVox.app"
-            DESTINATION "/Applications"
-            COMPONENT Standalone)
+    # # Standalone app installation on macOS is tricky because it typically needs to 
+    # # go to /Applications, which requires admin rights. For development and testing, 
+    # # it's often easier to copy the app manually from the build directory. 
+    # # If you want to automate this, you could consider installing to a user-writable 
+    # # location or prompting the user during installation.
+    # install(DIRECTORY "${ARTEFACT_DIR}/$<CONFIG>/Standalone/DoodleVox.app"
+    #         DESTINATION "/Applications"
+    #         COMPONENT Standalone)
 
     set(CPACK_GENERATOR "productbuild")
     set(CPACK_PRODUCTBUILD_IDENTITY_NAME "" CACHE STRING
