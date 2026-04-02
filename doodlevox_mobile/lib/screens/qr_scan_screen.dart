@@ -101,7 +101,9 @@ class _QRScanScreenState extends State<QRScanScreen> {
 
   void _showNoteDialog() {
     final a = """
-At the moment, DoodleVox is in its early stages and thus, some features are still in development as we are still working on the DAW integration. 
+At the moment, DoodleVox is entering it's pre-alpha stage!
+
+This means that the DAW integration is fully functional, but not rolled out to public use yet. 
 
 However, you can still explore the app and use the recording features without connecting to a DAW.
 
@@ -111,7 +113,12 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
       DVAlertDialog.show(
         context,
         title: 'Still Doodling...',
-        content: a,
+        content: Column(
+          mainAxisSize: .min,
+          children: [
+            Text(a)
+          ],
+        ),
         barrierDismissible: false,
       );
     });

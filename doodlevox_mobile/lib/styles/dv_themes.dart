@@ -50,7 +50,7 @@ class DVTheme {
       shape: RoundedRectangleBorder(borderRadius: .all(.circular(10.r))),
       titleTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 18.spMin,
+        fontSize: 20.spMin,
         fontWeight: .w600,
         color: neutralColor,
       ),
@@ -134,7 +134,7 @@ class DVTheme {
       shape: RoundedRectangleBorder(borderRadius: .all(.circular(10.r))),
       titleTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 18.spMin,
+        fontSize: 20.spMin,
         fontWeight: .w600,
         color: secondaryColor,
       ),

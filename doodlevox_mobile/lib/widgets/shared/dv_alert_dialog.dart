@@ -4,7 +4,7 @@ class DVAlertDialog {
   static Future<bool?> show(
     BuildContext context, {
     required String title,
-    required String content,
+    required Widget content,
     String confirmText = 'OK',
     String? cancelText,
     bool barrierDismissible = true,
@@ -14,8 +14,9 @@ class DVAlertDialog {
       barrierDismissible: barrierDismissible,
       builder: (context) => AlertDialog(
         title: Text(title),
-        content: Text(content),
-        contentPadding: .only(left: 20, right: 20, top: 10, bottom: 5),
+        content: content,
+        titlePadding: .all(20),
+        contentPadding: .only(left: 20, right: 20, top: 0, bottom: 0),
         actions: [
           if (cancelText != null)
             TextButton(
