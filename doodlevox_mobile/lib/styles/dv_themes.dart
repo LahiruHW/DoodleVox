@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:doodlevox_mobile/styles/dv_button_style.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
 import 'package:doodlevox_mobile/styles/dv_snackbar_style.dart';

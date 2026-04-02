@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:doodlevox_mobile/utils/dv_router.dart';
 import 'package:doodlevox_mobile/styles/dv_themes.dart';
 import 'package:doodlevox_mobile/utils/dv_app_info.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:doodlevox_mobile/utils/dv_shared_prefs.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:doodlevox_mobile/providers/dv_prefs_provider.dart';
@@ -61,16 +62,23 @@ class DoodleVoxApp extends StatelessWidget {
     // ignore: unused_local_variable
     final prefsProvider = context.watch<DVPrefsProvider>();
 
-    return MaterialApp.router(
-      title: 'DoodleVox',
-      theme: DVTheme.lightTheme,
-      darkTheme: DVTheme.darkTheme,
-      debugShowCheckedModeBanner: false,
-      // themeMode: prefsProvider.themeMode,
-      themeMode: ThemeMode.system,
-      routerConfig: DvRouter.router,
-      themeAnimationDuration: const Duration(milliseconds: 800),
-      themeAnimationCurve: Curves.easeInOut,
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp.router(
+          title: 'DoodleVox',
+          theme: DVTheme.lightTheme,
+          darkTheme: DVTheme.darkTheme,
+          debugShowCheckedModeBanner: false,
+          // themeMode: prefsProvider.themeMode,
+          themeMode: ThemeMode.light,// .system,
+          routerConfig: DvRouter.router,
+          themeAnimationDuration: const Duration(milliseconds: 800),
+          themeAnimationCurve: Curves.easeInOut,
+        );
+      },
     );
   }
 }
