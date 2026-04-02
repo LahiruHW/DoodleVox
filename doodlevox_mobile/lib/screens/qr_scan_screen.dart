@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:doodlevox_mobile/widgets/dv_logo.dart';
 import 'package:doodlevox_mobile/utils/dv_app_info.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
@@ -10,6 +11,7 @@ import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_snackbar.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_alert_dialog.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
+import 'package:doodlevox_mobile/utils/painters/border_beam_painter.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_secondary_button.dart';
 
 class QRScanScreen extends StatefulWidget {
@@ -21,17 +23,19 @@ class QRScanScreen extends StatefulWidget {
 
 class _QRScanScreenState extends State<QRScanScreen> {
   static final _log = Logger('QRScanScreen');
-  final MobileScannerController _scannerController = MobileScannerController(
-    autoStart: false,
-  );
+  late final MobileScannerController _scannerController;
+
   bool _isScanning = false;
   bool _isConnecting = false;
   bool _hasNavigated = false;
+  bool _scannerStarted = false;
 
   @override
-  void dispose() {
-    _scannerController.dispose();
-    super.dispose();
+  void initState() {
+    _scannerController = MobileScannerController(autoStart: false);
+    _showNoteDialog();
+    _log.info('QRScanScreen initialized');
+    super.initState();
   }
 
   void _onQrDetected(BarcodeCapture capture) {
@@ -41,6 +45,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
       _hasNavigated = true;
       _log.info('QR Code scanned: ${barcode!.rawValue}');
       _scannerController.stop();
+      _scannerStarted = false;
       setState(() {
         _isScanning = false;
         _isConnecting = true;
@@ -79,11 +84,13 @@ class _QRScanScreenState extends State<QRScanScreen> {
   void _startScanning() {
     setState(() => _isScanning = true);
     _hasNavigated = false;
+    _scannerStarted = true;
     _scannerController.start();
   }
 
   void _stopScanning() {
     _scannerController.stop();
+    _scannerStarted = false;
     setState(() => _isScanning = false);
   }
 
@@ -111,9 +118,116 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
   }
 
   @override
-  void initState() {
-    super.initState();
-    _showNoteDialog();
+  void dispose() {
+    // Only dispose (which internally calls stop) if the scanner was started.
+    // Calling stop on a never-started scanner throws PlatformException
+    if (_scannerStarted) _scannerController.dispose();
+    super.dispose();
+  }
+
+  Widget _initialScannerState(BuildContext context) {
+    final qrStyle = Theme.of(context).extension<DVQrScanStyle>()!;
+    final colorscheme = Theme.of(context).colorScheme;
+    return Container(
+          // clipBehavior: .hardEdge,
+          decoration: BoxDecoration(
+            color: colorscheme.onSurface.withValues(alpha: 0.05),
+            border: .all(
+              color: colorscheme.onSurface.withValues(alpha: 0.2),
+              width: 1,
+            ),
+            borderRadius: .circular(12),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: .min,
+              mainAxisAlignment: .center,
+              children: [
+                Icon(
+                  Icons.qr_code_scanner,
+                  size: 64,
+                  color: colorscheme.onSurface.withValues(alpha: 0.3),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'QR Scanner',
+                  style: qrStyle.instructionTextStyle.copyWith(
+                    color: colorscheme.onSurface.withValues(alpha: 0.4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+        // animate the border colour to show a border beam infinite animation
+        .animate(onPlay: (ctrl) => ctrl.repeat())
+        .custom(
+          duration: const Duration(milliseconds: 2400),
+          builder: (context, value, child) => CustomPaint(
+            foregroundPainter: BorderBeamPainter(
+              progress: value,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: child,
+          ),
+        );
+  }
+
+  Widget _buildScannerView(BuildContext context) {
+    final colorscheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        border: .all(
+          color: colorscheme.primary.withValues(alpha: 0.4),
+          width: 2,
+        ),
+        borderRadius: .circular(12),
+      ),
+      child: ClipRRect(
+        borderRadius: .circular(12),
+        child: MobileScanner(
+          controller: _scannerController,
+          onDetect: _onQrDetected,
+        ),
+      ),
+    );
+  }
+
+  Widget _connectingSessionView(BuildContext context) {
+    final qrStyle = Theme.of(context).extension<DVQrScanStyle>()!;
+    final colorscheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: colorscheme.onSurface.withValues(alpha: 0.05),
+        border: Border.all(
+          color: colorscheme.primary.withValues(alpha: 0.4),
+          width: 2,
+        ),
+        borderRadius: .circular(12),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: .min,
+          children: [
+            SizedBox(
+              width: 48,
+              height: 48,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: colorscheme.primary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Connecting to DAW...',
+              style: qrStyle.instructionTextStyle.copyWith(
+                color: colorscheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -132,9 +246,9 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
               Text(
                 'Connect to DAW',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: .w600,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                  fontWeight: .w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -144,110 +258,14 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
               ),
               const Spacer(flex: 1),
               // QR Scanner view
-              ClipRRect(
-                child: SizedBox(
-                  height: 250,
-                  width: 250,
-                  child: _isConnecting
-                      ? Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.05),
-                            border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withValues(alpha: 0.4),
-                              width: 2,
-                            ),
-                          ),
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: .min,
-                              children: [
-                                SizedBox(
-                                  width: 48,
-                                  height: 48,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 3,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Connecting to DAW...',
-                                  style: qrStyle.instructionTextStyle.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : _isScanning
-                      ? Stack(
-                          children: [
-                            MobileScanner(
-                              controller: _scannerController,
-                              onDetect: _onQrDetected,
-                            ),
-                            // Scanner border overlay
-                            Container(
-                              decoration: BoxDecoration(
-                                border: .all(
-                                  color: qrStyle.scannerBorderColor,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.05),
-                            border: .all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.2),
-                              width: 1,
-                            ),
-                          ),
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: .min,
-                              children: [
-                                Icon(
-                                  Icons.qr_code_scanner,
-                                  size: 64,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.3),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'QR Scanner',
-                                  style: qrStyle.instructionTextStyle.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.4),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                ),
+              SizedBox(
+                height: 250,
+                width: 250,
+                child: _isConnecting
+                    ? _connectingSessionView(context)
+                    : _isScanning
+                    ? _buildScannerView(context)
+                    : _initialScannerState(context),
               ),
               const Spacer(flex: 2),
               // Buttons
