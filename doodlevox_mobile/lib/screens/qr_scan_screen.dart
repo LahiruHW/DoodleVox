@@ -306,6 +306,7 @@ DoodleVox is not just an Audio Recorder, but a tool intended for music producers
                   color: Theme.of(context).colorScheme.onSurface.withAlpha(60),
                 ),
               ),
+              const SizedBox(height: 5),
             ],
           ),
         ),

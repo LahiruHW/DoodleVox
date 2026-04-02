@@ -38,7 +38,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
       fontSize: 16.spMin,
       fontWeight: FontWeight.w600,
     ),
-    buttonShape: RoundedRectangleBorder(borderRadius: .all(.circular(20))),
+    buttonShape: RoundedRectangleBorder(borderRadius: .all(.circular(25.r))),
   );
 
   static DVButtonStyle dark = DVButtonStyle(
@@ -54,7 +54,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
       fontSize: 16.spMin,
       fontWeight: FontWeight.w600,
     ),
-    buttonShape: RoundedRectangleBorder(borderRadius: .zero),
+    buttonShape: RoundedRectangleBorder(borderRadius: .all(.circular(25.r))),
   );
 
   @override
