@@ -8,6 +8,7 @@ class DVSharedPrefs {
 
   static const String defaultThemeMode = 'dark';
   static const String defaultLanguage = 'en-US';
+  static const bool defaultIsFirstLaunch = true;
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -31,5 +32,14 @@ class DVSharedPrefs {
 
   static Future<void> setLanguage(String language) async {
     await _prefs.setString(_languageKey, language);
+  }
+
+  // First launch flag
+  static bool getIsFirstLaunch() {
+    return _prefs.getBool('DV_IS_FIRST_LAUNCH') ?? defaultIsFirstLaunch;
+  }
+
+  static Future<void> setIsFirstLaunch(bool value) async {
+    await _prefs.setBool('DV_IS_FIRST_LAUNCH', value);
   }
 }
