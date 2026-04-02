@@ -92,22 +92,46 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
   ) {
     if (other is! DVButtonStyle) return this;
     return DVButtonStyle(
-      primaryButtonColor:
-          Color.lerp(primaryButtonColor, other.primaryButtonColor, t)!,
-      primaryButtonTextColor:
-          Color.lerp(primaryButtonTextColor, other.primaryButtonTextColor, t)!,
-      secondaryButtonColor:
-          Color.lerp(secondaryButtonColor, other.secondaryButtonColor, t)!,
+      primaryButtonColor: Color.lerp(
+        primaryButtonColor,
+        other.primaryButtonColor,
+        t,
+      )!,
+      primaryButtonTextColor: Color.lerp(
+        primaryButtonTextColor,
+        other.primaryButtonTextColor,
+        t,
+      )!,
+      secondaryButtonColor: Color.lerp(
+        secondaryButtonColor,
+        other.secondaryButtonColor,
+        t,
+      )!,
       secondaryButtonTextColor: Color.lerp(
-          secondaryButtonTextColor, other.secondaryButtonTextColor, t)!,
+        secondaryButtonTextColor,
+        other.secondaryButtonTextColor,
+        t,
+      )!,
       secondaryButtonBorderColor: Color.lerp(
-          secondaryButtonBorderColor, other.secondaryButtonBorderColor, t)!,
-      disabledButtonColor:
-          Color.lerp(disabledButtonColor, other.disabledButtonColor, t)!,
-      disabledButtonTextColor:
-          Color.lerp(disabledButtonTextColor, other.disabledButtonTextColor, t)!,
-      buttonTextStyle:
-          TextStyle.lerp(buttonTextStyle, other.buttonTextStyle, t)!,
+        secondaryButtonBorderColor,
+        other.secondaryButtonBorderColor,
+        t,
+      )!,
+      disabledButtonColor: Color.lerp(
+        disabledButtonColor,
+        other.disabledButtonColor,
+        t,
+      )!,
+      disabledButtonTextColor: Color.lerp(
+        disabledButtonTextColor,
+        other.disabledButtonTextColor,
+        t,
+      )!,
+      buttonTextStyle: TextStyle.lerp(
+        buttonTextStyle,
+        other.buttonTextStyle,
+        t,
+      )!,
       buttonShape:
           ShapeBorder.lerp(buttonShape, other.buttonShape, t)
               as OutlinedBorder? ??
