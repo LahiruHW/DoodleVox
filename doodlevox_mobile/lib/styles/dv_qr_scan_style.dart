@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:doodlevox_mobile/styles/dv_themes.dart';
+import 'package:doodlevox_mobile/styles/dv_colors.dart';
 
 class DVQrScanStyle extends ThemeExtension<DVQrScanStyle> {
   const DVQrScanStyle({
@@ -16,35 +16,35 @@ class DVQrScanStyle extends ThemeExtension<DVQrScanStyle> {
 
   static const DVQrScanStyle light = DVQrScanStyle(
     scannerOverlayColor: Color(0x88000000),
-    scannerBorderColor: DVTheme.primaryColor,
+    scannerBorderColor: DVColors.primary,
     instructionTextStyle: TextStyle(
       fontFamily: 'Inter',
       fontSize: 16,
       fontWeight: FontWeight.w400,
-      color: DVTheme.neutralColor,
+      color: DVColors.neutral,
     ),
     subtitleTextStyle: TextStyle(
       fontFamily: 'Inter',
       fontSize: 14,
       fontWeight: FontWeight.w400,
-      color: DVTheme.tertiaryColor,
+      color: DVColors.tertiary,
     ),
   );
 
   static const DVQrScanStyle dark = DVQrScanStyle(
     scannerOverlayColor: Color(0x88000000),
-    scannerBorderColor: DVTheme.primaryColor,
+    scannerBorderColor: DVColors.primary,
     instructionTextStyle: TextStyle(
       fontFamily: 'Inter',
       fontSize: 16,
       fontWeight: FontWeight.w400,
-      color: DVTheme.secondaryColor,
+      color: DVColors.secondary,
     ),
     subtitleTextStyle: TextStyle(
       fontFamily: 'Inter',
       fontSize: 14,
       fontWeight: FontWeight.w400,
-      color: DVTheme.tertiaryColor,
+      color: DVColors.tertiary,
     ),
   );
 

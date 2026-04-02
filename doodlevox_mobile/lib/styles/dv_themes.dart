@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:doodlevox_mobile/styles/dv_colors.dart';
 import 'package:doodlevox_mobile/styles/dv_button_style.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
 import 'package:doodlevox_mobile/styles/dv_snackbar_style.dart';
@@ -7,11 +8,11 @@ import 'package:doodlevox_mobile/styles/dv_record_screen_style.dart';
 class DVTheme {
   DVTheme._();
 
-  // Color constants (Midnight Sun)
-  static const Color primaryColor = Color(0xFFFFB800); // gold
-  static const Color secondaryColor = Color(0xFFFFFFFF); // white
-  static const Color tertiaryColor = Color(0xFF888888); // grey
-  static const Color neutralColor = Color(0xFF000000); // black
+  // Color constants (Midnight Sun) — defined in DVColors
+  static const Color primaryColor = DVColors.primary;
+  static const Color secondaryColor = DVColors.secondary;
+  static const Color tertiaryColor = DVColors.tertiary;
+  static const Color neutralColor = DVColors.neutral;
 
   static ColorScheme lightColorScheme = .light(
     primary: primaryColor,

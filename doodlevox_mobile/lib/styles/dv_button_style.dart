@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:doodlevox_mobile/styles/dv_themes.dart';
+import 'package:doodlevox_mobile/styles/dv_colors.dart';
 
 class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
   const DVButtonStyle({
@@ -25,13 +25,13 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
   final OutlinedBorder buttonShape;
 
   static const DVButtonStyle light = DVButtonStyle(
-    primaryButtonColor: DVTheme.primaryColor,
-    primaryButtonTextColor: DVTheme.neutralColor,
+    primaryButtonColor: DVColors.primary,
+    primaryButtonTextColor: DVColors.neutral,
     secondaryButtonColor: Colors.transparent,
-    secondaryButtonTextColor: DVTheme.neutralColor,
-    secondaryButtonBorderColor: DVTheme.neutralColor,
+    secondaryButtonTextColor: DVColors.neutral,
+    secondaryButtonBorderColor: DVColors.neutral,
     disabledButtonColor: Color(0xFFE0E0E0),
-    disabledButtonTextColor: DVTheme.tertiaryColor,
+    disabledButtonTextColor: DVColors.tertiary,
     buttonTextStyle: TextStyle(
       fontFamily: 'Inter',
       fontSize: 16,
@@ -41,13 +41,13 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
   );
 
   static const DVButtonStyle dark = DVButtonStyle(
-    primaryButtonColor: DVTheme.primaryColor,
-    primaryButtonTextColor: DVTheme.neutralColor,
+    primaryButtonColor: DVColors.primary,
+    primaryButtonTextColor: DVColors.neutral,
     secondaryButtonColor: Colors.transparent,
-    secondaryButtonTextColor: DVTheme.secondaryColor,
-    secondaryButtonBorderColor: DVTheme.secondaryColor,
+    secondaryButtonTextColor: DVColors.secondary,
+    secondaryButtonBorderColor: DVColors.secondary,
     disabledButtonColor: Color(0xFF333333),
-    disabledButtonTextColor: DVTheme.tertiaryColor,
+    disabledButtonTextColor: DVColors.tertiary,
     buttonTextStyle: TextStyle(
       fontFamily: 'Inter',
       fontSize: 16,
