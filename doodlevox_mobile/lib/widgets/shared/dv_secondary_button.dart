@@ -46,8 +46,7 @@ class DVSecondaryButton extends StatelessWidget {
                   ? style.disabledButtonTextColor
                   : style.secondaryButtonBorderColor,
             ),
-            shape:
-                const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            shape: style.buttonShape,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

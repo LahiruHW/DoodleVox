@@ -49,7 +49,7 @@ class DVPrimaryButton extends StatelessWidget {
             foregroundColor: style.primaryButtonTextColor,
             disabledBackgroundColor: style.disabledButtonColor,
             disabledForegroundColor: style.disabledButtonTextColor,
-            shape: const RoundedRectangleBorder(borderRadius: .zero),
+            shape: style.buttonShape,
           ),
           child: isLoading
               ? SizedBox(

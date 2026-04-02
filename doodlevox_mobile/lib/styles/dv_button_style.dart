@@ -11,6 +11,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
     required this.disabledButtonColor,
     required this.disabledButtonTextColor,
     required this.buttonTextStyle,
+    required this.buttonShape,
   });
 
   final Color primaryButtonColor;
@@ -21,6 +22,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
   final Color disabledButtonColor;
   final Color disabledButtonTextColor;
   final TextStyle buttonTextStyle;
+  final OutlinedBorder buttonShape;
 
   static const DVButtonStyle light = DVButtonStyle(
     primaryButtonColor: DVTheme.primaryColor,
@@ -35,6 +37,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
       fontSize: 16,
       fontWeight: FontWeight.w600,
     ),
+    buttonShape: RoundedRectangleBorder(borderRadius: .all(.circular(20))),
   );
 
   static const DVButtonStyle dark = DVButtonStyle(
@@ -50,6 +53,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
       fontSize: 16,
       fontWeight: FontWeight.w600,
     ),
+    buttonShape: RoundedRectangleBorder(borderRadius: .zero),
   );
 
   @override
@@ -62,6 +66,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
     Color? disabledButtonColor,
     Color? disabledButtonTextColor,
     TextStyle? buttonTextStyle,
+    OutlinedBorder? buttonShape,
   }) {
     return DVButtonStyle(
       primaryButtonColor: primaryButtonColor ?? this.primaryButtonColor,
@@ -76,6 +81,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
       disabledButtonTextColor:
           disabledButtonTextColor ?? this.disabledButtonTextColor,
       buttonTextStyle: buttonTextStyle ?? this.buttonTextStyle,
+      buttonShape: buttonShape ?? this.buttonShape,
     );
   }
 
@@ -102,6 +108,10 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
           Color.lerp(disabledButtonTextColor, other.disabledButtonTextColor, t)!,
       buttonTextStyle:
           TextStyle.lerp(buttonTextStyle, other.buttonTextStyle, t)!,
+      buttonShape:
+          ShapeBorder.lerp(buttonShape, other.buttonShape, t)
+              as OutlinedBorder? ??
+          buttonShape,
     );
   }
 }
