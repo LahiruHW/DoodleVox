@@ -42,54 +42,56 @@ class DVTheme {
     splashColor: Colors.transparent,
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
-    textTheme: DVTextTheme.globalTextTheme,
-    dialogTheme: const DialogThemeData(
+    textTheme: DVTextTheme.globalTextTheme.apply(fontSizeFactor: 1.spMin),
+    dialogTheme: DialogThemeData(
+      elevation: 0,
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      actionsPadding: .symmetric(horizontal: 10.w, vertical: 5.h),
+      shape: RoundedRectangleBorder(borderRadius: .all(.circular(10.r))),
       titleTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
+        fontSize: 18.spMin,
+        fontWeight: .w600,
         color: neutralColor,
       ),
       contentTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
+        fontSize: 14.spMin,
+        fontWeight: .w400,
         color: neutralColor,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: .zero),
+        shape: RoundedRectangleBorder(borderRadius: .all(.circular(15.r))),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: .zero),
+        shape: RoundedRectangleBorder(borderRadius: .all(.circular(15.r))),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: .zero),
+        shape: RoundedRectangleBorder(borderRadius: .all(.circular(15.r))),
       ),
     ),
-    cardTheme: const CardThemeData(
-      shape: RoundedRectangleBorder(borderRadius: .zero),
+    cardTheme: CardThemeData(
+      shape: RoundedRectangleBorder(borderRadius: .all(.circular(15.r))),
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       centerTitle: true,
       elevation: 0,
       backgroundColor: Colors.white,
       foregroundColor: neutralColor,
       titleTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
+        fontSize: 20.spMin,
+        fontWeight: .w600,
         color: neutralColor,
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       elevation: 0,
       type: BottomNavigationBarType.fixed,
       enableFeedback: false,
@@ -98,14 +100,14 @@ class DVTheme {
       unselectedItemColor: tertiaryColor,
       selectedLabelStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
+        fontSize: 12.spMin,
+        fontWeight: .w600,
         color: primaryColor,
       ),
       unselectedLabelStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
+        fontSize: 12.spMin,
+        fontWeight: .w400,
         color: tertiaryColor,
       ),
     ),
@@ -125,49 +127,51 @@ class DVTheme {
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
     textTheme: DVTextTheme.globalTextTheme,
-    dialogTheme: const DialogThemeData(
+    dialogTheme: DialogThemeData(
+      elevation: 0,
       backgroundColor: Color(0xFF1E1E1E),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      actionsPadding: .symmetric(horizontal: 10.w, vertical: 5.h),
+      shape: RoundedRectangleBorder(borderRadius: .all(.circular(10.r))),
       titleTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
+        fontSize: 18.spMin,
+        fontWeight: .w600,
         color: secondaryColor,
       ),
       contentTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
+        fontSize: 14.spMin,
+        fontWeight: .w400,
         color: secondaryColor,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: .zero),
+        shape: RoundedRectangleBorder(borderRadius: .all(.circular(15.r))),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: .zero),
+        shape: RoundedRectangleBorder(borderRadius: .all(.circular(15.r))),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: .zero),
+        shape: RoundedRectangleBorder(borderRadius: .all(.circular(15.r))),
       ),
     ),
-    cardTheme: const CardThemeData(
-      shape: RoundedRectangleBorder(borderRadius: .zero),
+    cardTheme: CardThemeData(
+      shape: RoundedRectangleBorder(borderRadius: .all(.circular(15.r))),
     ),
     appBarTheme: AppBarTheme(
       centerTitle: true,
       elevation: 0,
       backgroundColor: neutralColor,
       foregroundColor: secondaryColor,
-      titleTextStyle: const TextStyle(
+      titleTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
+        fontSize: 20.spMin,
+        fontWeight: .w600,
         color: secondaryColor,
       ),
     ),
@@ -177,16 +181,16 @@ class DVTheme {
       backgroundColor: neutralColor,
       selectedItemColor: primaryColor,
       unselectedItemColor: tertiaryColor,
-      selectedLabelStyle: const TextStyle(
+      selectedLabelStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
+        fontSize: 12.spMin,
+        fontWeight: .w600,
         color: primaryColor,
       ),
-      unselectedLabelStyle: const TextStyle(
+      unselectedLabelStyle: TextStyle(
         fontFamily: 'Inter',
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
+        fontSize: 12.spMin,
+        fontWeight: .w400,
         color: tertiaryColor,
       ),
     ),

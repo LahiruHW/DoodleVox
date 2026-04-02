@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
   const DVButtonStyle({
@@ -24,7 +25,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
   final TextStyle buttonTextStyle;
   final OutlinedBorder buttonShape;
 
-  static const DVButtonStyle light = DVButtonStyle(
+  static DVButtonStyle light = DVButtonStyle(
     primaryButtonColor: DVColors.primary,
     primaryButtonTextColor: DVColors.neutral,
     secondaryButtonColor: Colors.transparent,
@@ -34,13 +35,13 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
     disabledButtonTextColor: DVColors.tertiary,
     buttonTextStyle: TextStyle(
       fontFamily: 'Inter',
-      fontSize: 16,
+      fontSize: 16.spMin,
       fontWeight: FontWeight.w600,
     ),
     buttonShape: RoundedRectangleBorder(borderRadius: .all(.circular(20))),
   );
 
-  static const DVButtonStyle dark = DVButtonStyle(
+  static DVButtonStyle dark = DVButtonStyle(
     primaryButtonColor: DVColors.primary,
     primaryButtonTextColor: DVColors.neutral,
     secondaryButtonColor: Colors.transparent,
@@ -50,7 +51,7 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
     disabledButtonTextColor: DVColors.tertiary,
     buttonTextStyle: TextStyle(
       fontFamily: 'Inter',
-      fontSize: 16,
+      fontSize: 16.spMin,
       fontWeight: FontWeight.w600,
     ),
     buttonShape: RoundedRectangleBorder(borderRadius: .zero),

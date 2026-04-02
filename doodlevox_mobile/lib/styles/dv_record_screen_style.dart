@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DVRecordScreenStyle extends ThemeExtension<DVRecordScreenStyle> {
   const DVRecordScreenStyle({
@@ -18,38 +19,38 @@ class DVRecordScreenStyle extends ThemeExtension<DVRecordScreenStyle> {
   final TextStyle statusTextStyle;
   final Color playbackIconColor;
 
-  static const DVRecordScreenStyle light = DVRecordScreenStyle(
+  static DVRecordScreenStyle light = DVRecordScreenStyle(
     recordingIndicatorColor: Color(0xFFFF3860),
     idleIndicatorColor: DVColors.tertiary,
     waveformColor: DVColors.primary,
     timerTextStyle: TextStyle(
       fontFamily: 'Inter',
-      fontSize: 48,
-      fontWeight: FontWeight.w300,
+      fontSize: 48.spMin,
+      fontWeight: .w300,
       color: DVColors.neutral,
     ),
     statusTextStyle: TextStyle(
       fontFamily: 'Inter',
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
+      fontSize: 14.spMin,
+      fontWeight: .w500,
       color: DVColors.tertiary,
     ),
     playbackIconColor: DVColors.primary,
   );
 
-  static const DVRecordScreenStyle dark = DVRecordScreenStyle(
+  static DVRecordScreenStyle dark = DVRecordScreenStyle(
     recordingIndicatorColor: Color(0xFFFF3860),
     idleIndicatorColor: DVColors.tertiary,
     waveformColor: DVColors.primary,
     timerTextStyle: TextStyle(
       fontFamily: 'Inter',
-      fontSize: 48,
-      fontWeight: FontWeight.w300,
+      fontSize: 48.spMin,
+      fontWeight: .w300,
       color: DVColors.secondary,
     ),
     statusTextStyle: TextStyle(
       fontFamily: 'Inter',
-      fontSize: 14,
+      fontSize: 14.spMin,
       fontWeight: FontWeight.w500,
       color: DVColors.tertiary,
     ),

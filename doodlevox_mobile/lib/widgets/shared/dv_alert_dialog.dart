@@ -13,9 +13,9 @@ class DVAlertDialog {
       context: context,
       barrierDismissible: barrierDismissible,
       builder: (context) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: .zero),
         title: Text(title),
         content: Text(content),
+        contentPadding: .only(left: 20, right: 20, top: 10, bottom: 5),
         actions: [
           if (cancelText != null)
             TextButton(
