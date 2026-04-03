@@ -101,13 +101,11 @@ class _QRScanScreenState extends State<QRScanScreen> {
 
   void _showNoteDialog() {
     final a = """
-At the moment, DoodleVox is entering it's pre-alpha stage!
+At the moment, DoodleVox is currently in early-access - thanks for being here!
 
 This means that the DAW integration is fully functional, but not rolled out to public use yet. 
 
-However, you can still explore the app and use the recording features without connecting to a DAW.
-
-DoodleVox is not just an Audio Recorder, but a tool intended for music producers to quickly capture ideas without breaking their creative flow.
+DoodleVox is designed for music producers who want to capture ideas instantly, without breaking their creative flow.
     """;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DVAlertDialog.show(

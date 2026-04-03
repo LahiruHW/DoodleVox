@@ -73,7 +73,7 @@ class DoodleVoxApp extends StatelessWidget {
           darkTheme: DVTheme.darkTheme,
           debugShowCheckedModeBanner: false,
           // themeMode: prefsProvider.themeMode,
-          themeMode: ThemeMode.light,// .system,
+          themeMode: ThemeMode.system,
           routerConfig: DvRouter.router,
           themeAnimationDuration: const Duration(milliseconds: 800),
           themeAnimationCurve: Curves.easeInOut,
