@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+// import 'package:flutter_animate/flutter_animate.dart';
+import 'package:doodlevox_mobile/widgets/dv_waveform.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_snackbar.dart';
 import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
@@ -52,40 +56,44 @@ class RecordScreen extends StatelessWidget {
                 isRecording
                     ? 'Recording...'
                     : isPlaying
-                        ? 'Playing'
-                        : isPaused
-                            ? 'Paused'
-                            : hasRecording
-                                ? 'Recorded'
-                                : 'Ready',
+                    ? 'Playing'
+                    : isPaused
+                    ? 'Paused'
+                    : hasRecording
+                    ? 'Recorded'
+                    : 'Ready',
                 style: style.statusTextStyle,
               ),
               const SizedBox(height: 16),
+
+              // Waveform display
+              DVWaveform(
+                samples: audio.waveformSamples,
+                activeColor: style.waveformColor,
+                inactiveColor: style.idleIndicatorColor.withValues(alpha: 0.4),
+                progress: isRecording
+                    ? null // live mode — no progress bar
+                    : (isPlaying || isPaused) &&
+                            audio.playbackDuration.inMilliseconds > 0
+                        ? audio.playbackPosition.inMilliseconds /
+                            audio.playbackDuration.inMilliseconds
+                        : hasRecording
+                            ? 1.0
+                            : null,
+              ),
+              const SizedBox(height: 8),
+
               // Timer display
               Text(
                 isRecording
                     ? _formatDuration(audio.recordingDuration)
                     : (isPlaying || isPaused)
-                        ? _formatDuration(audio.playbackPosition)
-                        : hasRecording
-                            ? _formatDuration(audio.recordingDuration)
-                            : '00:00',
+                    ? _formatDuration(audio.playbackPosition)
+                    : hasRecording
+                    ? _formatDuration(audio.recordingDuration)
+                    : '00:00',
                 style: style.timerTextStyle,
               ),
-              // Playback progress indicator
-              if (hasRecording && audio.playbackDuration.inMilliseconds > 0)
-                Padding(
-                  padding: const .only(top: 16),
-                  child: LinearProgressIndicator(
-                    value: audio.playbackDuration.inMilliseconds > 0
-                        ? audio.playbackPosition.inMilliseconds /
-                            audio.playbackDuration.inMilliseconds
-                        : 0,
-                    backgroundColor: style.idleIndicatorColor.withValues(alpha: 0.3),
-                    valueColor: AlwaysStoppedAnimation(style.waveformColor),
-                    minHeight: 3,
-                  ),
-                ),
               const Spacer(flex: 2),
               // Playback controls (only after recording exists)
               if (hasRecording && !isRecording)
@@ -96,7 +104,7 @@ class RecordScreen extends StatelessWidget {
                     children: [
                       // Play / Pause button
                       IconButton(
-                        iconSize: 48,
+                        iconSize: 48.spMin,
                         color: style.playbackIconColor,
                         onPressed: () {
                           if (isPlaying) {
@@ -110,6 +118,14 @@ class RecordScreen extends StatelessWidget {
                           }
                         },
                         icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                      ),
+
+                      IconButton(
+                        iconSize: 40.spMin,
+                        onPressed: () {
+                          context.push('/record/effects');
+                        },
+                        icon: Icon(Icons.multitrack_audio_rounded),
                       ),
                     ],
                   ),
@@ -129,6 +145,7 @@ class RecordScreen extends StatelessWidget {
                 ),
               // Action buttons (after recording)
               if (hasRecording && !isRecording) ...[
+                // Record again button
                 DVSecondaryButton(
                   label: 'Record Again',
                   icon: Icons.refresh,
@@ -139,17 +156,18 @@ class RecordScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 12),
+                // Send to DAW button
                 DVPrimaryButton(
                   label: isSending
                       ? 'Sending...'
                       : daw.state == .sent
-                          ? 'Sent to DAW ✓'
-                          : 'Send to DAW',
+                      ? 'Sent to DAW ✓'
+                      : 'Send to DAW',
                   icon: isSending
                       ? Icons.sync
                       : daw.state == .sent
-                          ? Icons.check
-                          : Icons.send,
+                      ? Icons.check
+                      : Icons.send,
                   isLoading: isSending,
                   disabled: !isDawConnected || isSending,
                   feedbackMessage: !isDawConnected

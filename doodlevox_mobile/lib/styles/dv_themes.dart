@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:doodlevox_mobile/styles/dv_button_style.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
 import 'package:doodlevox_mobile/styles/dv_snackbar_style.dart';
 import 'package:doodlevox_mobile/styles/dv_record_screen_style.dart';
+import 'package:doodlevox_mobile/styles/dv_effects_sheet_style.dart';
 
 class DVTheme {
   DVTheme._();
@@ -43,6 +45,13 @@ class DVTheme {
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
     textTheme: DVTextTheme.globalTextTheme.apply(fontSizeFactor: 1.spMin),
+    cupertinoOverrideTheme: const NoDefaultCupertinoThemeData(
+      applyThemeToAll: true,
+      brightness: Brightness.light,
+      primaryColor: primaryColor,
+      primaryContrastingColor: neutralColor,
+      scaffoldBackgroundColor: secondaryColor,
+    ),
     dialogTheme: DialogThemeData(
       elevation: 0,
       backgroundColor: Colors.white,
@@ -118,6 +127,7 @@ class DVTheme {
       DVQrScanStyle.light,
       DVRecordScreenStyle.light,
       DVSnackbarStyle.light,
+      DVEffectsSheetStyle.light,
     },
   );
 
@@ -129,6 +139,13 @@ class DVTheme {
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
     textTheme: DVTextTheme.globalTextTheme,
+    cupertinoOverrideTheme: const NoDefaultCupertinoThemeData(
+      applyThemeToAll: true,
+      brightness: Brightness.dark,
+      primaryColor: primaryColor,
+      primaryContrastingColor: neutralColor,
+      scaffoldBackgroundColor: neutralColor,
+    ),
     dialogTheme: DialogThemeData(
       elevation: 0,
       backgroundColor: Color(0xFF1E1E1E),
@@ -203,6 +220,7 @@ class DVTheme {
       DVQrScanStyle.dark,
       DVRecordScreenStyle.dark,
       DVSnackbarStyle.dark,
+      DVEffectsSheetStyle.dark,
     },
   );
 }

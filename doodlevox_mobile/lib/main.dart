@@ -3,15 +3,15 @@ import 'package:logging/logging.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:doodlevox_mobile/utils/dv_router.dart';
 import 'package:doodlevox_mobile/styles/dv_themes.dart';
 import 'package:doodlevox_mobile/utils/dv_app_info.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:doodlevox_mobile/utils/dv_shared_prefs.dart';
+import 'package:doodlevox_mobile/utils/routing/dv_router.dart';
+import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:doodlevox_mobile/providers/dv_prefs_provider.dart';
 import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
-import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

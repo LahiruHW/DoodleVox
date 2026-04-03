@@ -19,6 +19,13 @@ class DVAudioProvider extends ChangeNotifier {
   Duration _playbackPosition = Duration.zero;
   Duration _playbackDuration = Duration.zero;
   Timer? _durationTimer;
+  StreamSubscription<Amplitude>? _amplitudeSub;
+
+  /// Normalized amplitude samples collected during recording (0.0 – 1.0).
+  final List<double> _waveformSamples = [];
+
+  /// The latest live amplitude (0.0 – 1.0), updated ~20×/sec while recording.
+  double _currentAmplitude = 0.0;
 
   // Debounce guard
   bool _isBusy = false;
@@ -29,6 +36,8 @@ class DVAudioProvider extends ChangeNotifier {
   Duration get playbackPosition => _playbackPosition;
   Duration get playbackDuration => _playbackDuration;
   bool get hasRecording => _recordingPath != null && _state != RecordingState.idle;
+  List<double> get waveformSamples => _waveformSamples;
+  double get currentAmplitude => _currentAmplitude;
 
   DVAudioProvider() {
     _player.onPlayerComplete.listen((_) {
@@ -67,10 +76,26 @@ class DVAudioProvider extends ChangeNotifier {
 
         _recordingPath = path;
         _recordingDuration = Duration.zero;
+        _waveformSamples.clear();
+        _currentAmplitude = 0.0;
         _state = RecordingState.recording;
 
         _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
           _recordingDuration += const Duration(seconds: 1);
+          notifyListeners();
+        });
+
+        // Stream amplitude from the recorder (~20 samples/sec).
+        _amplitudeSub = _recorder
+            .onAmplitudeChanged(const Duration(milliseconds: 50))
+            .listen((amp) {
+          // amp.current is in dBFS (negative, with 0 = max).
+          // Normalize to 0.0–1.0 using a -60 dB floor.
+          final double db = amp.current;
+          final double normalized =
+              ((db + 60.0) / 60.0).clamp(0.0, 1.0);
+          _currentAmplitude = normalized;
+          _waveformSamples.add(normalized);
           notifyListeners();
         });
 
@@ -93,6 +118,9 @@ class DVAudioProvider extends ChangeNotifier {
     try {
       _durationTimer?.cancel();
       _durationTimer = null;
+      await _amplitudeSub?.cancel();
+      _amplitudeSub = null;
+      _currentAmplitude = 0.0;
 
       final path = await _recorder.stop();
       if (path != null) {
@@ -188,6 +216,8 @@ class DVAudioProvider extends ChangeNotifier {
       _recordingDuration = Duration.zero;
       _playbackPosition = Duration.zero;
       _playbackDuration = Duration.zero;
+      _waveformSamples.clear();
+      _currentAmplitude = 0.0;
       _state = RecordingState.idle;
       notifyListeners();
     } catch (e) {
@@ -200,6 +230,7 @@ class DVAudioProvider extends ChangeNotifier {
   @override
   void dispose() {
     _durationTimer?.cancel();
+    _amplitudeSub?.cancel();
     _recorder.dispose();
     _player.dispose();
     super.dispose();

@@ -1,10 +1,12 @@
 import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:doodlevox_mobile/screens/record_screen.dart';
 import 'package:doodlevox_mobile/screens/library_screen.dart';
 import 'package:doodlevox_mobile/screens/qr_scan_screen.dart';
+import 'package:doodlevox_mobile/screens/record/record_screen.dart';
 import 'package:doodlevox_mobile/screens/shared/dv_main_shell.dart';
+import 'package:doodlevox_mobile/utils/routing/dv_cupertino_sheet_page.dart';
+import 'package:doodlevox_mobile/screens/record/effects_bottom_sheet_screen.dart';
 
 class DvRouter {
   static final rootNavKey = GlobalKey<NavigatorState>();
@@ -48,6 +50,15 @@ class DvRouter {
             ],
           ),
         ],
+      ),
+
+      // Effects bottom sheet route
+      GoRoute(
+        path: '/record/effects',
+        parentNavigatorKey: rootNavKey,
+        pageBuilder: (context, state) => CupertinoSheetPage<void>(
+          child: const SheetScaffold(),
+        ),
       ),
     ],
   );
