@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
+import 'package:doodlevox_mobile/styles/dv_text_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DVEffectsSheetStyle extends ThemeExtension<DVEffectsSheetStyle> {
@@ -24,16 +25,14 @@ class DVEffectsSheetStyle extends ThemeExtension<DVEffectsSheetStyle> {
   static DVEffectsSheetStyle light = DVEffectsSheetStyle(
     backgroundColor: DVColors.secondary,
     handleColor: DVColors.tertiary,
-    titleTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    titleTextStyle: DVTextTheme.titleStyle.copyWith(
       fontSize: 18.spMin,
-      fontWeight: FontWeight.w600,
+      fontWeight: .w600,
       color: DVColors.neutral,
     ),
-    itemTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    itemTextStyle: DVTextTheme.bodyStyle.copyWith(
       fontSize: 14.spMin,
-      fontWeight: FontWeight.w500,
+      fontWeight: .w500,
       color: DVColors.neutral,
     ),
     iconColor: DVColors.tertiary,
@@ -44,16 +43,14 @@ class DVEffectsSheetStyle extends ThemeExtension<DVEffectsSheetStyle> {
   static DVEffectsSheetStyle dark = DVEffectsSheetStyle(
     backgroundColor: DVColors.neutral,
     handleColor: DVColors.tertiary,
-    titleTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    titleTextStyle: DVTextTheme.titleStyle.copyWith(
       fontSize: 18.spMin,
-      fontWeight: FontWeight.w600,
+      fontWeight: .w600,
       color: DVColors.secondary,
     ),
-    itemTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    itemTextStyle: DVTextTheme.bodyStyle.copyWith(
       fontSize: 14.spMin,
-      fontWeight: FontWeight.w500,
+      fontWeight: .w500,
       color: DVColors.secondary,
     ),
     iconColor: DVColors.tertiary,
@@ -91,8 +88,7 @@ class DVEffectsSheetStyle extends ThemeExtension<DVEffectsSheetStyle> {
     return DVEffectsSheetStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t)!,
       handleColor: Color.lerp(handleColor, other.handleColor, t)!,
-      titleTextStyle:
-          TextStyle.lerp(titleTextStyle, other.titleTextStyle, t)!,
+      titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t)!,
       itemTextStyle: TextStyle.lerp(itemTextStyle, other.itemTextStyle, t)!,
       iconColor: Color.lerp(iconColor, other.iconColor, t)!,
       activeColor: Color.lerp(activeColor, other.activeColor, t)!,

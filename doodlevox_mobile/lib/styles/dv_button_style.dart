@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
+import 'package:doodlevox_mobile/styles/dv_text_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
@@ -33,10 +34,9 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
     secondaryButtonBorderColor: DVColors.neutral,
     disabledButtonColor: Color(0xFFE0E0E0),
     disabledButtonTextColor: DVColors.tertiary,
-    buttonTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    buttonTextStyle: DVTextTheme.titleStyle.copyWith(
       fontSize: 16.spMin,
-      fontWeight: FontWeight.w600,
+      fontWeight: .w600,
     ),
     buttonShape: RoundedRectangleBorder(borderRadius: .all(.circular(25.r))),
   );
@@ -49,10 +49,9 @@ class DVButtonStyle extends ThemeExtension<DVButtonStyle> {
     secondaryButtonBorderColor: DVColors.secondary,
     disabledButtonColor: Color(0xFF333333),
     disabledButtonTextColor: DVColors.tertiary,
-    buttonTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    buttonTextStyle: DVTextTheme.titleStyle.copyWith(
       fontSize: 16.spMin,
-      fontWeight: FontWeight.w600,
+      fontWeight: .w600,
     ),
     buttonShape: RoundedRectangleBorder(borderRadius: .all(.circular(25.r))),
   );

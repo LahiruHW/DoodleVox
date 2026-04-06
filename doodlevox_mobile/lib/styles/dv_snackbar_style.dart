@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
+import 'package:doodlevox_mobile/styles/dv_text_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DVSnackbarStyle extends ThemeExtension<DVSnackbarStyle> {
@@ -28,11 +29,7 @@ class DVSnackbarStyle extends ThemeExtension<DVSnackbarStyle> {
     errorTextColor: DVColors.secondary,
     successBackgroundColor: Color(0xFF23D160),
     successTextColor: DVColors.neutral,
-    textStyle: TextStyle(
-      fontFamily: 'Inter',
-      fontSize: 14.spMin,
-      fontWeight: FontWeight.w500,
-    ),
+    textStyle: DVTextTheme.labelStyle.copyWith(fontSize: 14.spMin),
   );
 
   static DVSnackbarStyle dark = DVSnackbarStyle(
@@ -42,11 +39,7 @@ class DVSnackbarStyle extends ThemeExtension<DVSnackbarStyle> {
     errorTextColor: DVColors.secondary,
     successBackgroundColor: Color(0xFF23D160),
     successTextColor: DVColors.neutral,
-    textStyle: TextStyle(
-      fontFamily: 'Inter',
-      fontSize: 14.spMin,
-      fontWeight: FontWeight.w500,
-    ),
+    textStyle: DVTextTheme.labelStyle.copyWith(fontSize: 14.spMin),
   );
 
   @override

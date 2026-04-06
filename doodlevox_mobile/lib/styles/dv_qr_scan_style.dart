@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
+import 'package:doodlevox_mobile/styles/dv_text_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DVQrScanStyle extends ThemeExtension<DVQrScanStyle> {
@@ -18,16 +19,14 @@ class DVQrScanStyle extends ThemeExtension<DVQrScanStyle> {
   static DVQrScanStyle light = DVQrScanStyle(
     scannerOverlayColor: Color(0x88000000),
     scannerBorderColor: DVColors.primary,
-    instructionTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    instructionTextStyle: DVTextTheme.bodyStyle.copyWith(
       fontSize: 16.spMin,
-      fontWeight: FontWeight.w400,
+      fontWeight: .w400,
       color: DVColors.neutral,
     ),
-    subtitleTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    subtitleTextStyle: DVTextTheme.bodyStyle.copyWith(
       fontSize: 14.spMin,
-      fontWeight: FontWeight.w400,
+      fontWeight: .w400,
       color: DVColors.tertiary,
     ),
   );
@@ -35,16 +34,14 @@ class DVQrScanStyle extends ThemeExtension<DVQrScanStyle> {
   static DVQrScanStyle dark = DVQrScanStyle(
     scannerOverlayColor: Color(0x88000000),
     scannerBorderColor: DVColors.primary,
-    instructionTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    instructionTextStyle: DVTextTheme.bodyStyle.copyWith(
       fontSize: 16.spMin,
-      fontWeight: FontWeight.w400,
+      fontWeight: .w400,
       color: DVColors.secondary,
     ),
-    subtitleTextStyle: TextStyle(
-      fontFamily: 'Inter',
+    subtitleTextStyle: DVTextTheme.bodyStyle.copyWith(
       fontSize: 14.spMin,
-      fontWeight: FontWeight.w400,
+      fontWeight: .w400,
       color: DVColors.tertiary,
     ),
   );

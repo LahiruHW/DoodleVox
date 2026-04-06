@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:doodlevox_mobile/styles/dv_colors.dart';
+import 'package:doodlevox_mobile/styles/dv_text_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:doodlevox_mobile/styles/dv_button_style.dart';
 import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
@@ -222,18 +223,5 @@ class DVTheme {
       DVSnackbarStyle.dark,
       DVEffectsSheetStyle.dark,
     },
-  );
-}
-
-// /////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////////////////////////////////////////////////////
-
-class DVTextTheme {
-  DVTextTheme._();
-
-  // add TextStyle static constants here
-
-  static TextTheme globalTextTheme = const TextTheme(
-    // add TextStyle properties here
   );
 }
