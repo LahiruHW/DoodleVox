@@ -212,7 +212,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
     set(CPACK_GENERATOR "NSIS")
     set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-    set(CPACK_NSIS_MODIFY_PATH OFF)
+    set(CPACK_NSIS_MODIFY_PATH ON)
     # Default install root – user can change during install
     set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64\\\\${COMPANY_NAME}")
 
