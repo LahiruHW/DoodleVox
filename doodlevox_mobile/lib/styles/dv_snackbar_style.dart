@@ -71,16 +71,24 @@ class DVSnackbarStyle extends ThemeExtension<DVSnackbarStyle> {
   ) {
     if (other is! DVSnackbarStyle) return this;
     return DVSnackbarStyle(
-      backgroundColor:
-          Color.lerp(backgroundColor, other.backgroundColor, t)!,
+      backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t)!,
       textColor: Color.lerp(textColor, other.textColor, t)!,
-      errorBackgroundColor:
-          Color.lerp(errorBackgroundColor, other.errorBackgroundColor, t)!,
+      errorBackgroundColor: Color.lerp(
+        errorBackgroundColor,
+        other.errorBackgroundColor,
+        t,
+      )!,
       errorTextColor: Color.lerp(errorTextColor, other.errorTextColor, t)!,
-      successBackgroundColor:
-          Color.lerp(successBackgroundColor, other.successBackgroundColor, t)!,
-      successTextColor:
-          Color.lerp(successTextColor, other.successTextColor, t)!,
+      successBackgroundColor: Color.lerp(
+        successBackgroundColor,
+        other.successBackgroundColor,
+        t,
+      )!,
+      successTextColor: Color.lerp(
+        successTextColor,
+        other.successTextColor,
+        t,
+      )!,
       textStyle: TextStyle.lerp(textStyle, other.textStyle, t)!,
     );
   }

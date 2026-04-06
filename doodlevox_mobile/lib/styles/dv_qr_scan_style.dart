@@ -68,14 +68,26 @@ class DVQrScanStyle extends ThemeExtension<DVQrScanStyle> {
   ) {
     if (other is! DVQrScanStyle) return this;
     return DVQrScanStyle(
-      scannerOverlayColor:
-          Color.lerp(scannerOverlayColor, other.scannerOverlayColor, t)!,
-      scannerBorderColor:
-          Color.lerp(scannerBorderColor, other.scannerBorderColor, t)!,
-      instructionTextStyle:
-          TextStyle.lerp(instructionTextStyle, other.instructionTextStyle, t)!,
-      subtitleTextStyle:
-          TextStyle.lerp(subtitleTextStyle, other.subtitleTextStyle, t)!,
+      scannerOverlayColor: Color.lerp(
+        scannerOverlayColor,
+        other.scannerOverlayColor,
+        t,
+      )!,
+      scannerBorderColor: Color.lerp(
+        scannerBorderColor,
+        other.scannerBorderColor,
+        t,
+      )!,
+      instructionTextStyle: TextStyle.lerp(
+        instructionTextStyle,
+        other.instructionTextStyle,
+        t,
+      )!,
+      subtitleTextStyle: TextStyle.lerp(
+        subtitleTextStyle,
+        other.subtitleTextStyle,
+        t,
+      )!,
     );
   }
 }

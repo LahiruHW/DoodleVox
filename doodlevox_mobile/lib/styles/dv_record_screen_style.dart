@@ -80,16 +80,27 @@ class DVRecordScreenStyle extends ThemeExtension<DVRecordScreenStyle> {
     if (other is! DVRecordScreenStyle) return this;
     return DVRecordScreenStyle(
       recordingIndicatorColor: Color.lerp(
-          recordingIndicatorColor, other.recordingIndicatorColor, t)!,
-      idleIndicatorColor:
-          Color.lerp(idleIndicatorColor, other.idleIndicatorColor, t)!,
+        recordingIndicatorColor,
+        other.recordingIndicatorColor,
+        t,
+      )!,
+      idleIndicatorColor: Color.lerp(
+        idleIndicatorColor,
+        other.idleIndicatorColor,
+        t,
+      )!,
       waveformColor: Color.lerp(waveformColor, other.waveformColor, t)!,
-      timerTextStyle:
-          TextStyle.lerp(timerTextStyle, other.timerTextStyle, t)!,
-      statusTextStyle:
-          TextStyle.lerp(statusTextStyle, other.statusTextStyle, t)!,
-      playbackIconColor:
-          Color.lerp(playbackIconColor, other.playbackIconColor, t)!,
+      timerTextStyle: TextStyle.lerp(timerTextStyle, other.timerTextStyle, t)!,
+      statusTextStyle: TextStyle.lerp(
+        statusTextStyle,
+        other.statusTextStyle,
+        t,
+      )!,
+      playbackIconColor: Color.lerp(
+        playbackIconColor,
+        other.playbackIconColor,
+        t,
+      )!,
     );
   }
 }
