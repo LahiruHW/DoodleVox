@@ -18,7 +18,17 @@ class DVMainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const DVLogo(size: 40)),
+      appBar: AppBar(
+        title: const DVLogo(size: 40),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              context.push('/settings');
+            },
+          ),
+        ],
+      ),
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,

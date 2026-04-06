@@ -5,6 +5,7 @@ import 'package:doodlevox_mobile/screens/library_screen.dart';
 import 'package:doodlevox_mobile/screens/qr_scan_screen.dart';
 import 'package:doodlevox_mobile/screens/record/record_screen.dart';
 import 'package:doodlevox_mobile/screens/shared/dv_main_shell.dart';
+import 'package:doodlevox_mobile/screens/settings/settings_screen.dart';
 import 'package:doodlevox_mobile/utils/routing/dv_cupertino_sheet_page.dart';
 import 'package:doodlevox_mobile/screens/record/effects_bottom_sheet_screen.dart';
 
@@ -59,6 +60,12 @@ class DvRouter {
         pageBuilder: (context, state) => CupertinoSheetPage<void>(
           child: const SheetScaffold(),
         ),
+      ),
+
+      // Settings Page route
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );
