@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:record/record.dart';
 import 'package:logging/logging.dart';
@@ -203,14 +202,8 @@ class DVAudioProvider extends ChangeNotifier {
       // Stop any ongoing playback
       await _player.stop();
 
-      // Delete previous recording file
-      if (_recordingPath != null) {
-        final file = File(_recordingPath!);
-        if (await file.exists()) {
-          await file.delete();
-          _log.fine('Deleted previous recording: $_recordingPath');
-        }
-      }
+      // NOTE: The audio file is NOT deleted here — it is now owned by the
+      // library provider which handles its own persistence and cleanup.
 
       _recordingPath = null;
       _recordingDuration = Duration.zero;

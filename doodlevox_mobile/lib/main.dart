@@ -10,8 +10,10 @@ import 'package:doodlevox_mobile/utils/dv_shared_prefs.dart';
 import 'package:doodlevox_mobile/utils/routing/dv_router.dart';
 import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:doodlevox_mobile/providers/dv_sync_provider.dart';
 import 'package:doodlevox_mobile/providers/dv_prefs_provider.dart';
 import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
+import 'package:doodlevox_mobile/providers/dv_library_provider.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +48,12 @@ void main() async {
       ChangeNotifierProvider(create: (_) => DVPrefsProvider()),
       ChangeNotifierProvider(create: (_) => DVAudioProvider()),
       ChangeNotifierProvider(create: (_) => DVDawProvider()),
+      ChangeNotifierProvider(create: (_) {
+        final lib = DVLibraryProvider();
+        lib.loadRecordings();
+        return lib;
+      }),
+      ChangeNotifierProvider(create: (_) => DVSyncProvider()),
     ],
     builder: (context, child) => const DoodleVoxApp(),
   );

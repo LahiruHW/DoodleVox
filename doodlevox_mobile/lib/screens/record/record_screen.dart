@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 // import 'package:flutter_animate/flutter_animate.dart';
+import 'package:doodlevox_mobile/models/dv_recording.dart';
 import 'package:doodlevox_mobile/widgets/dv_waveform.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_snackbar.dart';
 import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
+import 'package:doodlevox_mobile/providers/dv_library_provider.dart';
 import 'package:doodlevox_mobile/styles/dv_record_screen_style.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_secondary_button.dart';
@@ -20,12 +22,37 @@ class RecordScreen extends StatelessWidget {
     return '$minutes:$seconds';
   }
 
+  /// Save (or update) the current recording into the library.
+  Future<void> _saveToLibrary(
+    DVAudioProvider audio,
+    DVLibraryProvider library,
+  ) async {
+    if (audio.recordingPath == null) return;
+
+    final slotId = library.getOrCreateSlotId();
+    final now = DateTime.now();
+    final existing = library.getRecording(slotId);
+
+    final recording = DVRecording(
+      id: slotId,
+      title: existing?.title ?? DVRecording.defaultTitle(now),
+      filePath: audio.recordingPath!,
+      waveformSamples: List<double>.from(audio.waveformSamples),
+      durationMs: audio.recordingDuration.inMilliseconds,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+      syncStatus: existing?.syncStatus ?? DVSyncStatus.localOnly,
+    );
+
+    await library.saveRecording(recording);
+  }
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).extension<DVRecordScreenStyle>()!;
 
-    return Consumer2<DVAudioProvider, DVDawProvider>(
-      builder: (context, audio, daw, _) {
+    return Consumer3<DVAudioProvider, DVDawProvider, DVLibraryProvider>(
+      builder: (context, audio, daw, library, _) {
         final isRecording = audio.state == .recording;
         final hasRecording = audio.hasRecording;
         final isPlaying = audio.state == .playing;
@@ -135,17 +162,20 @@ class RecordScreen extends StatelessWidget {
                 DVPrimaryButton(
                   label: isRecording ? 'Stop Recording' : 'Start Recording',
                   icon: isRecording ? Icons.stop : Icons.mic,
-                  onPressed: () {
+                  onPressed: () async {
                     if (isRecording) {
-                      audio.stopRecording();
+                      await audio.stopRecording();
+                      await _saveToLibrary(audio, library);
                     } else {
+                      // Ensure a slot exists before recording.
+                      library.getOrCreateSlotId();
                       audio.startRecording();
                     }
                   },
                 ),
               // Action buttons (after recording)
               if (hasRecording && !isRecording) ...[
-                // Record again button
+                // Record again button — keeps the same library slot.
                 DVSecondaryButton(
                   label: 'Record Again',
                   icon: Icons.refresh,
@@ -153,6 +183,8 @@ class RecordScreen extends StatelessWidget {
                   onPressed: () {
                     daw.resetToConnected();
                     audio.recordAgain();
+                    // Slot ID is intentionally NOT cleared — next recording
+                    // overwrites the same library entry.
                   },
                 ),
                 const SizedBox(height: 12),
@@ -179,6 +211,15 @@ class RecordScreen extends StatelessWidget {
                     final success = await daw.sendToDaw(audio.recordingPath!);
                     if (!context.mounted) return;
                     if (success) {
+                      // Mark the recording as synced in the library.
+                      final slotId = library.currentSlotId;
+                      if (slotId != null) {
+                        await library.markSentToDaw(slotId);
+                      }
+                      // Finalise the slot so next recording creates a new entry.
+                      library.finaliseSlot();
+
+                      if (!context.mounted) return;
                       DVSnackbar.show(
                         context,
                         message: 'Audio sent to DAW',

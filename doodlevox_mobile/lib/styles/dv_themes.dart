@@ -8,6 +8,7 @@ import 'package:doodlevox_mobile/styles/dv_qr_scan_style.dart';
 import 'package:doodlevox_mobile/styles/dv_snackbar_style.dart';
 import 'package:doodlevox_mobile/styles/dv_record_screen_style.dart';
 import 'package:doodlevox_mobile/styles/dv_effects_sheet_style.dart';
+import 'package:doodlevox_mobile/styles/dv_library_screen_style.dart';
 
 class DVTheme {
   DVTheme._();
@@ -129,6 +130,7 @@ class DVTheme {
       DVRecordScreenStyle.light,
       DVSnackbarStyle.light,
       DVEffectsSheetStyle.light,
+      DVLibraryScreenStyle.light,
     },
   );
 
@@ -222,6 +224,7 @@ class DVTheme {
       DVRecordScreenStyle.dark,
       DVSnackbarStyle.dark,
       DVEffectsSheetStyle.dark,
+      DVLibraryScreenStyle.dark,
     },
   );
 }

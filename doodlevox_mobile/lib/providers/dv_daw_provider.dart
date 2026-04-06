@@ -22,6 +22,7 @@ class DVDawProvider extends ChangeNotifier {
 
   DawConnectionState get state => _state;
   String? get serverUrl => _serverUrl;
+  String? get token => _token;
   String? get errorMessage => _errorMessage;
   bool get isConnected => _state == .connected || _state == .sent;
 
