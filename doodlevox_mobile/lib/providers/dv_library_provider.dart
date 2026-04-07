@@ -50,15 +50,25 @@ class DVLibraryProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   /// Load recordings from persistent JSON file.  Call once at app startup.
+  ///
+  /// File paths are stored as bare filenames and re-resolved against the
+  /// current documents directory so that iOS container path rotations between
+  /// sessions never produce stale absolute paths.
   Future<void> loadRecordings() async {
     try {
       final file = await _jsonFile();
       if (await file.exists()) {
+        final docsPath = (await getApplicationDocumentsDirectory()).path;
         final contents = await file.readAsString();
         final List<dynamic> list = jsonDecode(contents) as List<dynamic>;
-        _recordings = list
-            .map((e) => DVRecording.fromJson(e as Map<String, dynamic>))
-            .toList();
+        _recordings = list.map((e) {
+          final recording =
+              DVRecording.fromJson(e as Map<String, dynamic>);
+          // Re-resolve to the current absolute path from the stored filename.
+          final fileName = recording.filePath.split('/').last;
+          recording.filePath = '$docsPath/$fileName';
+          return recording;
+        }).toList();
         // Newest first.
         _recordings.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         _log.info('Loaded ${_recordings.length} recordings from disk');
@@ -173,7 +183,13 @@ class DVLibraryProvider extends ChangeNotifier {
   Future<void> _persist() async {
     try {
       final file = await _jsonFile();
-      final json = jsonEncode(_recordings.map((r) => r.toJson()).toList());
+      // Persist only the bare filename so the stored path remains valid
+      // after iOS rotates the app container between sessions.
+      final json = jsonEncode(_recordings.map((r) {
+        final map = r.toJson();
+        map['filePath'] = r.filePath.split('/').last;
+        return map;
+      }).toList());
       await file.writeAsString(json);
     } catch (e) {
       _log.severe('Failed to persist library: $e');

@@ -12,7 +12,7 @@ enum DVSyncStatus {
   pendingSync,
 }
 
-/// Immutable-ID data model for a single audio recording.
+/// Data model that assigns an immutable ID for a single audio recording.
 class DVRecording {
   DVRecording({
     required this.id,

@@ -12,6 +12,7 @@ import 'package:doodlevox_mobile/providers/dv_library_provider.dart';
 import 'package:doodlevox_mobile/styles/dv_record_screen_style.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_primary_button.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_secondary_button.dart';
+import 'package:doodlevox_mobile/widgets/shared/dv_secondary_icon_button.dart';
 
 class RecordScreen extends StatelessWidget {
   const RecordScreen({super.key});
@@ -175,17 +176,35 @@ class RecordScreen extends StatelessWidget {
                 ),
               // Action buttons (after recording)
               if (hasRecording && !isRecording) ...[
-                // Record again button — keeps the same library slot.
-                DVSecondaryButton(
-                  label: 'Record Again',
-                  icon: Icons.refresh,
-                  disabled: isSending,
-                  onPressed: () {
-                    daw.resetToConnected();
-                    audio.recordAgain();
-                    // Slot ID is intentionally NOT cleared — next recording
-                    // overwrites the same library entry.
-                  },
+                Row(
+                  spacing: 10,
+                  children: [
+                    // Record again button — keeps the same library slot.
+                    DVSecondaryIconButton(
+                      icon: Icons.refresh,
+                      disabled: isSending,
+                      onPressed: () {
+                        daw.resetToConnected();
+                        audio.recordAgain();
+                        // Slot ID is intentionally NOT cleared — next recording
+                        // overwrites the same library entry.
+                      },
+                    ),
+                    // Start fresh button — clears the current slot so next recording creates a new entry.
+                    Expanded(
+                      child: DVSecondaryButton(
+                        label: 'Start Fresh',
+                        icon: Icons.check,
+                        disabled: false,
+                        onPressed: () {
+                          daw.resetToConnected();
+                          audio.recordAgain();
+                          // Slot ID is  cleared — next recording is new
+                          library.finaliseSlot();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 // Send to DAW button
