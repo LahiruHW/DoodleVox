@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:doodlevox_mobile/models/dv_recording.dart';
 import 'package:doodlevox_mobile/widgets/dv_waveform.dart';
+import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
 import 'package:doodlevox_mobile/styles/dv_library_screen_style.dart';
 
 class LibraryTile extends StatefulWidget {
@@ -122,6 +123,9 @@ class _LibraryTileState extends State<LibraryTile> {
                         ),
                 ),
                 const SizedBox(width: 8),
+                // Encoding chip
+                _EncodingChip(encoding: rec.encoding, style: style),
+                const SizedBox(width: 6),
                 // Sync badge
                 if (rec.isSentToDaw)
                   Icon(
@@ -166,6 +170,35 @@ class _LibraryTileState extends State<LibraryTile> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EncodingChip extends StatelessWidget {
+  const _EncodingChip({required this.encoding, required this.style});
+
+  final String? encoding;
+  final DVLibraryScreenStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = encoderLabel[encoding] ?? 'WAV';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: style.waveformColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: style.waveformColor,
+          letterSpacing: 0.4,
         ),
       ),
     );

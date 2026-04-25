@@ -1,11 +1,54 @@
+import 'dart:io';
 import 'dart:async';
 import 'package:record/record.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:doodlevox_mobile/utils/dv_shared_prefs.dart';
 
 enum RecordingState { idle, recording, recorded, playing, paused }
+
+/// Maps encoding preference strings to [AudioEncoder] values.
+const Map<String, AudioEncoder> encoderMap = {
+  'wav': AudioEncoder.wav,
+  'aacLc': AudioEncoder.aacLc,
+  'flac': AudioEncoder.flac,
+  'opus': AudioEncoder.opus,
+};
+
+/// File extension for each encoder.
+const Map<String, String> encoderExtension = {
+  'wav': 'wav',
+  'aacLc': 'm4a',
+  'flac': 'flac',
+  'opus': 'opus',
+};
+
+/// Display label for each encoder.
+const Map<String, String> encoderLabel = {
+  'wav': 'WAV',
+  'aacLc': 'AAC',
+  'flac': 'FLAC',
+  'opus': 'Opus',
+};
+
+/// Encoder keys supported on the current platform.
+/// Opus is excluded on iOS because AVPlayer cannot play OGG-Opus,
+/// and CAF+Opus support via audioplayers is unreliable.
+List<String> get supportedEncoderKeys {
+  if (Platform.isIOS) {
+    return ['wav', 'aacLc', 'flac'];
+  }
+  return encoderLabel.keys.toList();
+}
+
+/// Returns the file extension to use for [encodingKey] on the current platform.
+/// On iOS the record package wraps Opus in a CAF container, so .caf is correct.
+String extensionForEncoder(String encodingKey) {
+  if (encodingKey == 'opus' && Platform.isIOS) return 'caf';
+  return encoderExtension[encodingKey] ?? 'wav';
+}
 
 class DVAudioProvider extends ChangeNotifier {
   final _log = Logger('DVAudioProvider');
@@ -18,7 +61,7 @@ class DVAudioProvider extends ChangeNotifier {
   Duration _playbackPosition = Duration.zero;
   Duration _playbackDuration = Duration.zero;
   Timer? _durationTimer;
-  StreamSubscription<Amplitude>? _amplitudeSub;
+  Timer? _amplitudeTimer;
 
   /// Normalized amplitude samples collected during recording (0.0 – 1.0).
   final List<double> _waveformSamples = [];
@@ -61,12 +104,15 @@ class DVAudioProvider extends ChangeNotifier {
     try {
       if (await _recorder.hasPermission()) {
         final dir = await getApplicationDocumentsDirectory();
+        final encodingKey = DVSharedPrefs.getEncoding();
+        final encoder = encoderMap[encodingKey] ?? AudioEncoder.wav;
+        final ext = extensionForEncoder(encodingKey);
         final path =
-            '${dir.path}/dv_recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+            '${dir.path}/dv_recording_${DateTime.now().millisecondsSinceEpoch}.$ext';
 
         await _recorder.start(
-          const RecordConfig(
-            encoder: AudioEncoder.aacLc,
+          RecordConfig(
+            encoder: encoder,
             sampleRate: 44100,
             bitRate: 128000,
           ),
@@ -84,19 +130,21 @@ class DVAudioProvider extends ChangeNotifier {
           notifyListeners();
         });
 
-        // Stream amplitude from the recorder (~20 samples/sec).
-        _amplitudeSub = _recorder
-            .onAmplitudeChanged(const Duration(milliseconds: 50))
-            .listen((amp) {
-          // amp.current is in dBFS (negative, with 0 = max).
-          // Normalize to 0.0–1.0 using a -60 dB floor.
-          final double db = amp.current;
-          final double normalized =
-              ((db + 60.0) / 60.0).clamp(0.0, 1.0);
-          _currentAmplitude = normalized;
-          _waveformSamples.add(normalized);
-          notifyListeners();
-        });
+        // Poll amplitude at 10 Hz via a timer — more reliable than the
+        // onAmplitudeChanged stream on Android, which can silently stall.
+        _amplitudeTimer = Timer.periodic(
+          const Duration(milliseconds: 100),
+          (_) async {
+            try {
+              final amp = await _recorder.getAmplitude();
+              final double db = amp.current;
+              final double normalized = ((db + 60.0) / 60.0).clamp(0.0, 1.0);
+              _currentAmplitude = normalized;
+              _waveformSamples.add(normalized);
+              notifyListeners();
+            } catch (_) {}
+          },
+        );
 
         _log.fine('Recording started at $path');
         notifyListeners();
@@ -117,8 +165,8 @@ class DVAudioProvider extends ChangeNotifier {
     try {
       _durationTimer?.cancel();
       _durationTimer = null;
-      await _amplitudeSub?.cancel();
-      _amplitudeSub = null;
+      _amplitudeTimer?.cancel();
+      _amplitudeTimer = null;
       _currentAmplitude = 0.0;
 
       final path = await _recorder.stop();
@@ -223,7 +271,7 @@ class DVAudioProvider extends ChangeNotifier {
   @override
   void dispose() {
     _durationTimer?.cancel();
-    _amplitudeSub?.cancel();
+    _amplitudeTimer?.cancel();
     _recorder.dispose();
     _player.dispose();
     super.dispose();

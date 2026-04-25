@@ -7,9 +7,11 @@ class DVPrefsProvider extends ChangeNotifier {
 
   ThemeMode _themeMode = ThemeMode.dark;
   String _language = DVSharedPrefs.defaultLanguage;
+  String _encoding = DVSharedPrefs.defaultEncoding;
 
   ThemeMode get themeMode => _themeMode;
   String get language => _language;
+  String get encoding => _encoding;
 
   bool _isFirstLaunch = DVSharedPrefs.defaultIsFirstLaunch;
   bool get isFirstLaunch => _isFirstLaunch;
@@ -22,8 +24,9 @@ class DVPrefsProvider extends ChangeNotifier {
     final mode = DVSharedPrefs.getThemeMode();
     _themeMode = mode == 'light' ? ThemeMode.light : ThemeMode.dark;
     _language = DVSharedPrefs.getLanguage();
+    _encoding = DVSharedPrefs.getEncoding();
     _isFirstLaunch = DVSharedPrefs.getIsFirstLaunch();
-    _log.fine('Loaded prefs: theme=$mode, language=$_language, isFirstLaunch=$_isFirstLaunch');
+    _log.fine('Loaded prefs: theme=$mode, language=$_language, encoding=$_encoding, isFirstLaunch=$_isFirstLaunch');
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
@@ -51,6 +54,13 @@ class DVPrefsProvider extends ChangeNotifier {
     _isFirstLaunch = value;
     await DVSharedPrefs.setIsFirstLaunch(value);
     _log.fine('Is first launch set to $value');
+    notifyListeners();
+  }
+
+  Future<void> setEncoding(String encoding) async {
+    _encoding = encoding;
+    await DVSharedPrefs.setEncoding(encoding);
+    _log.fine('Encoding set to $encoding');
     notifyListeners();
   }
 }

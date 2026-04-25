@@ -23,6 +23,7 @@ class DVRecording {
     required this.createdAt,
     required this.updatedAt,
     this.syncStatus = DVSyncStatus.localOnly,
+    this.encoding,
   });
 
   /// Unique, immutable identifier (UUID v4).
@@ -32,8 +33,12 @@ class DVRecording {
   /// may be edited by the user.
   String title;
 
-  /// Absolute path to the .m4a audio file on disk.
+  /// Absolute path to the audio file on disk.
   String filePath;
+
+  /// The audio encoder used when recording (e.g. 'wav', 'aacLc', 'flac', 'opus').
+  /// Null for recordings created before this field was added.
+  String? encoding;
 
   /// Normalised amplitude samples (0.0 – 1.0) captured during recording,
   /// used to render the waveform visualisation in the library list.
@@ -72,6 +77,7 @@ class DVRecording {
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
         'syncStatus': syncStatus.name,
+        if (encoding != null) 'encoding': encoding,
       };
 
   factory DVRecording.fromJson(Map<String, dynamic> json) {
@@ -87,6 +93,7 @@ class DVRecording {
       syncStatus: DVSyncStatus.values.byName(
         (json['syncStatus'] as String?) ?? DVSyncStatus.localOnly.name,
       ),
+      encoding: json['encoding'] as String?,
     );
   }
 

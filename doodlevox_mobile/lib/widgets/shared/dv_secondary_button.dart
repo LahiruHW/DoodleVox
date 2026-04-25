@@ -42,6 +42,7 @@ class DVSecondaryButton extends StatelessWidget {
                 : style.secondaryButtonTextColor,
             disabledForegroundColor: style.disabledButtonTextColor,
             side: BorderSide(
+              width: 0.5,
               color: disabled
                   ? style.disabledButtonTextColor
                   : style.secondaryButtonBorderColor,

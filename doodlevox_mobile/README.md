@@ -14,7 +14,7 @@ This project was built using **Flutter 3.41.4** & **Dart 3.11.1**.
 |---------|---------|---------|
 | `provider` | ^6.1.5+1 | State management |
 | `go_router` | ^17.1.0 | Declarative routing & navigation |
-| `record` | ^6.2.0 | Audio recording with amplitude streaming |
+| `record` | ^6.2.0 | Audio recording with amplitude polling |
 | `audioplayers` | ^6.6.0 | Audio playback |
 | `http` | ^1.6.0 | HTTP client (DAW communication) |
 | `mobile_scanner` | ^7.2.0 | QR code scanning |
@@ -95,12 +95,12 @@ This file is git-ignored. Debug builds use the default debug keystore automatica
 lib/
 ├── main.dart                          # Entry point & provider setup
 ├── models/
-│   └── dv_recording.dart              # Recording data model (UUID, waveform, sync status)
+│   └── dv_recording.dart              # Recording data model (UUID, waveform, encoding, sync status)
 ├── providers/
-│   ├── dv_audio_provider.dart         # Audio recording & playback state
+│   ├── dv_audio_provider.dart         # Audio recording & playback state, encoder maps
 │   ├── dv_daw_provider.dart           # DAW connection over local network
 │   ├── dv_library_provider.dart       # Recording library with JSON persistence
-│   ├── dv_prefs_provider.dart         # User preferences (theme, language)
+│   ├── dv_prefs_provider.dart         # User preferences (theme, language, audio encoding)
 │   └── dv_sync_provider.dart          # Bidirectional metadata sync with DAW
 ├── screens/
 │   ├── qr_scan_screen.dart            # QR scanner for DAW connection
@@ -108,9 +108,10 @@ lib/
 │   │   ├── record_screen.dart         # Main recording interface
 │   │   └── effects_bottom_sheet_screen.dart
 │   ├── library/
-│   │   └── library_screen.dart        # Scrollable list of saved recordings
+│   │   ├── library_screen.dart        # Scrollable list of saved recordings
+│   │   └── library_tile.dart          # Individual recording tile (waveform, encoding chip, edit)
 │   ├── settings/
-│   │   └── settings_screen.dart
+│   │   └── settings_screen.dart       # Theme toggle, audio format picker
 │   └── shared/
 │       └── dv_main_shell.dart         # Tab navigation shell (Record / Library)
 ├── styles/
@@ -120,12 +121,13 @@ lib/
 │   ├── dv_button_style.dart           # Button theme extension
 │   ├── dv_record_screen_style.dart    # Record screen theming
 │   ├── dv_library_screen_style.dart   # Library screen theming
+│   ├── dv_settings_screen_style.dart  # Settings screen theming
 │   ├── dv_qr_scan_style.dart          # QR scan screen theming
 │   ├── dv_snackbar_style.dart         # Snackbar theming
 │   └── dv_effects_sheet_style.dart    # Effects sheet theming
 ├── utils/
 │   ├── dv_app_info.dart               # App metadata wrapper
-│   ├── dv_shared_prefs.dart           # SharedPreferences wrapper
+│   ├── dv_shared_prefs.dart           # SharedPreferences wrapper (theme, language, encoding)
 │   ├── routing/
 │   │   ├── dv_router.dart             # GoRouter route definitions
 │   │   └── dv_cupertino_sheet_page.dart
@@ -138,7 +140,9 @@ lib/
     ├── dv_waveform.dart               # Real-time waveform visualiser
     └── shared/
         ├── dv_primary_button.dart
+        ├── dv_primary_icon_button.dart
         ├── dv_secondary_button.dart
+        ├── dv_secondary_icon_button.dart
         ├── dv_alert_dialog.dart
         └── dv_snackbar.dart
 ```
@@ -151,8 +155,8 @@ The app uses **Provider** (`ChangeNotifier`) with five providers registered at t
 
 | Provider | Responsibility |
 |----------|---------------|
-| `DVPrefsProvider` | Theme mode, language, first-launch flag |
-| `DVAudioProvider` | Audio recording lifecycle, amplitude streaming, playback |
+| `DVPrefsProvider` | Theme mode, language, first-launch flag, audio encoding preference |
+| `DVAudioProvider` | Audio recording lifecycle, amplitude polling, playback |
 | `DVDawProvider` | Local network handshake & file transfer to the DAW plugin |
 | `DVLibraryProvider` | CRUD for saved recordings, JSON file persistence |
 | `DVSyncProvider` | Periodic metadata sync between mobile and DAW |
@@ -169,6 +173,23 @@ The app uses **Provider** (`ChangeNotifier`) with five providers registered at t
 | `/record/effects` | Effects bottom sheet (modal) |
 | `/settings` | Settings |
 
+### Audio Recording
+
+Recording is handled by the `record` package. The active encoder is selected per-recording from the user's preference and stored on the `DVRecording` model alongside the waveform data, so each library entry always reflects the format it was actually encoded in.
+
+Supported encoders and their platform availability:
+
+| Key | Label | Extension | iOS | Android |
+|-----|-------|-----------|-----|---------|
+| `wav` | WAV | `.wav` | ✓ | ✓ |
+| `aacLc` | AAC | `.m4a` | ✓ | ✓ |
+| `flac` | FLAC | `.flac` | ✓ | ✓ |
+| `opus` | Opus | `.opus` | ✗ | ✓ |
+
+> Opus is hidden on iOS because AVPlayer cannot reliably play the CAF-wrapped Opus output produced by the `record` package on that platform.
+
+Live waveform amplitude is collected by polling `getAmplitude()` every 100 ms via a `Timer.periodic`, rather than the stream-based `onAmplitudeChanged` API, which can silently stall on Android after a few seconds.
+
 ### DAW Connection Flow
 
 1. The DoodleVox VST plugin displays a QR code containing `http://<ip>:<port>?token=<token>`
@@ -179,8 +200,9 @@ The app uses **Provider** (`ChangeNotifier`) with five providers registered at t
 ### Library & Sync
 
 - Every recording is auto-saved to the library when the user stops recording
-- Each recording has an immutable UUID, editable title (defaults to the recorded date/time), waveform data, and a sync status
+- Each recording has an immutable UUID, editable title (defaults to the recorded date/time), waveform data, encoding format, and a sync status
 - The "Record Again" action overwrites the current recording slot; "Send to DAW" finalises the slot and marks it as synced
+- Each library tile displays an encoding chip (e.g. `WAV`, `AAC`) indicating the format of that specific recording
 - Metadata sync (title changes, deletions) runs periodically over the local network **only for recordings that exist on both the mobile app and the DAW** — recordings are never automatically pushed to the DAW
 
 ## Design System
@@ -196,4 +218,5 @@ The app uses **Provider** (`ChangeNotifier`) with five providers registered at t
 
 - **Typography:** Inter (variable font)
 - **Shape:** Smooth circular corners (20px border radius on components)
-- **Theme mode:** System-based (dark mode primary target) 
+- **Theme mode:** System-based with a persistent user override (dark mode primary target)
+- **Theming pattern:** Every screen and major widget has a dedicated `ThemeExtension` with `light` and `dark` static instances registered in `DVTheme`

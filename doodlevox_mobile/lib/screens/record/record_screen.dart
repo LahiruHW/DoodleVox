@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:doodlevox_mobile/models/dv_recording.dart';
 import 'package:doodlevox_mobile/widgets/dv_waveform.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:doodlevox_mobile/utils/dv_shared_prefs.dart';
 import 'package:doodlevox_mobile/providers/dv_daw_provider.dart';
 import 'package:doodlevox_mobile/widgets/shared/dv_snackbar.dart';
 import 'package:doodlevox_mobile/providers/dv_audio_provider.dart';
@@ -43,6 +44,7 @@ class RecordScreen extends StatelessWidget {
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       syncStatus: existing?.syncStatus ?? DVSyncStatus.localOnly,
+      encoding: existing?.encoding ?? DVSharedPrefs.getEncoding(),
     );
 
     await library.saveRecording(recording);
