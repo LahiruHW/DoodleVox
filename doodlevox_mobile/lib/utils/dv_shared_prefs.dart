@@ -11,6 +11,7 @@ class DVSharedPrefs {
   static const String defaultLanguage = 'en-US';
   static const bool defaultIsFirstLaunch = true;
   static const String defaultEncoding = 'wav';
+  static const Set<String> validEncodingKeys = {'wav', 'aacLc', 'flac', 'opus'};
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -47,7 +48,9 @@ class DVSharedPrefs {
 
   // Audio encoding
   static String getEncoding() {
-    return _prefs.getString(_encodingKey) ?? defaultEncoding;
+    final stored = _prefs.getString(_encodingKey);
+    if (stored != null && validEncodingKeys.contains(stored)) return stored;
+    return defaultEncoding;
   }
 
   static Future<void> setEncoding(String encoding) async {
