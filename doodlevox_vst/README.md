@@ -73,7 +73,7 @@ flowchart TD
 ## What's Been Implemented
 
 ### Build System (`CMakeLists.txt`)
-- CMake project (`DoodleVox`, v0.1.0) targeting **Standalone**, **AU**, and **VST3** formats via JUCE 8.0.12.
+- CMake project (`DoodleVox`, v0.1.1) targeting **Standalone**, **AU**, and **VST3** formats via JUCE 8.0.12.
 - Cross-platform: macOS (universal binary `x86_64` + `arm64`, deployment target `10.13` / `11.0` arm64), Linux (WebKit2GTK), Windows (MSVC static runtime).
 - `SharedCode` interface library for shared includes and compile definitions.
 - `AudioPluginData` binary-data target bundling `assets/`.
