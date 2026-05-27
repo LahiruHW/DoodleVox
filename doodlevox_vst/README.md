@@ -73,12 +73,12 @@ flowchart TD
 ## What's Been Implemented
 
 ### Build System (`CMakeLists.txt`)
-- CMake project (`DoodleVox`, v0.0.3) targeting **Standalone**, **AU**, and **VST3** formats via JUCE 8.0.12.
+- CMake project (`DoodleVox`, v0.1.0) targeting **Standalone**, **AU**, and **VST3** formats via JUCE 8.0.12.
 - Cross-platform: macOS (universal binary `x86_64` + `arm64`, deployment target `10.13` / `11.0` arm64), Linux (WebKit2GTK), Windows (MSVC static runtime).
 - `SharedCode` interface library for shared includes and compile definitions.
 - `AudioPluginData` binary-data target bundling `assets/`.
 - QR code generation via [nayuki/QR-Code-generator](https://github.com/nayuki/QR-Code-generator) v1.8.0 (fetched automatically by CPM).
-- **Plugins are never auto-copied to system directories.** Distribution uses platform-native installers via CPack (macOS `.pkg`, Windows NSIS `.exe`, Linux `.deb`).
+- Plugins are auto-copied to system plugin directories after each local build. In CI environments (`CI=true`) the copy step is skipped. Distribution also uses platform-native installers via CPack (macOS `.pkg`, Windows NSIS `.exe`, Linux `.deb`).
 - Helper scripts: `xcode_setup.sh` (Xcode project generation), `package.sh` (one-command build + package).
 
 ### Session Management & TCP Server (`PluginProcessor`)
@@ -89,7 +89,7 @@ flowchart TD
   1. Reads the HTTP header byte-by-byte until `\r\n\r\n`.
   2. **Validates the session token** from the `?token=` query parameter — rejects with `403 Forbidden` if invalid.
   3. **GET** requests → handshake response (`200 Connected`), sets `sessionActive = true`.
-  4. **POST** requests → reads `Content-Length` bytes into memory, decodes audio via `juce::AudioFormatManager` (WAV, AIFF, MP3, etc.), re-encodes as 16-bit WAV to `sessionDir/clip.wav` (overwriting any previous clip), responds `200 OK`, sets `newFileReady = true`.
+  4. **POST** requests → reads `Content-Length` bytes into memory, decodes audio via `juce::AudioFormatManager` (WAV, AIFF, FLAC, OGG-Vorbis/Opus via `registerBasicFormats()`; plus AAC/M4A/CAF via `CoreAudioFormat` on macOS and `WindowsMediaAudioFormat` on Windows), re-encodes as 16-bit WAV to `sessionDir/clip.wav` (overwriting any previous clip), responds `200 OK`, sets `newFileReady = true`.
 - On destruction: stops server thread, **deletes the entire session directory** (all received clips removed).
 
 ### Plugin UI — Two-Page Architecture (`PluginEditor`)
@@ -158,16 +158,22 @@ source/
 
 ## Getting Started (Development)
 
-1. Configure the project:
+1. Configure the project.
 
+   **Ninja / Makefiles (default on macOS and Linux):**
    ```bash
    cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
    ```
 
-   For an Xcode project:
-
+   **Xcode** (macOS — use `xcode_setup.sh` for a one-step shortcut, or run manually):
    ```bash
    cmake -S . -B build -G "Xcode"
+   open build/DoodleVox.xcodeproj
+   ```
+
+   **Visual Studio** (Windows):
+   ```bash
+   cmake -S . -B build -G "Visual Studio 17 2022" -A x64
    ```
 
 2. Build:
@@ -176,7 +182,9 @@ source/
    cmake --build build --config Debug
    ```
 
-3. Build artefacts are written to `build/DoodleVox_artefacts/<config>/` and are **not** copied to system directories. You can run the standalone app directly from there:
+   For faster incremental builds, add `--parallel` (or `-j` on Ninja/Makefiles).
+
+3. Build artefacts are written to `build/DoodleVox_artefacts/Debug/`. After a successful local build the plugin is automatically copied to the system plugin directory. You can also run the standalone app directly from the build folder:
 
    ```
    build/DoodleVox_artefacts/Debug/Standalone/DoodleVox.app    # macOS
@@ -184,7 +192,7 @@ source/
    build/DoodleVox_artefacts/Debug/Standalone/DoodleVox.exe    # Windows
    ```
 
-   To load the plugin in a DAW during development, point your DAW's plugin scan path at:
+   To load the plugin in a DAW without installing, point your DAW's plugin scan path at:
    - **VST3**: `build/DoodleVox_artefacts/Debug/VST3/`
    - **AU** (macOS): `build/DoodleVox_artefacts/Debug/AU/`
 
@@ -195,6 +203,7 @@ DoodleVox uses **CPack** to produce platform-native installers so end-users can 
 ### Quick method — `package.sh`
 
 ```bash
+chmod +x package.sh       # first time only
 ./package.sh              # Release build (default)
 ./package.sh Debug        # Debug build
 ```
@@ -236,18 +245,10 @@ cd build_release && cpack -C Release
 
 ## Using Visual Studio Code
 
-1. Install the `CMake Tools` extension.
-2. Open the workspace and let CMake configure (`CMake: Configure`).
-3. Build via `CMake: Build` or run the Standalone target with `CMake: Run Without Debug`.
-
-## macOS / Xcode
-
-```bash
-cmake -S . -B build -G "Xcode"
-open build/DoodleVox.xcodeproj
-```
-
-The `xcode_setup.sh` script at the repo root automates this.
+1. Install the **CMake Tools** extension.
+2. Open the `doodlevox_vst/` folder (not the parent workspace root) and let CMake Tools auto-configure, or run `CMake: Configure` from the command palette.
+3. Select a kit matching your compiler (e.g. "Clang" on macOS, "Visual Studio 2022" on Windows).
+4. Build via `CMake: Build` or run the Standalone target with `CMake: Run Without Debugging`.
 
 ## Testing the Plugin
 

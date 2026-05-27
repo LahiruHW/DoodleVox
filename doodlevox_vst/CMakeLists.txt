@@ -90,6 +90,7 @@ target_compile_definitions(SharedCode INTERFACE
         JUCE_WEB_BROWSER=1
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_USE_WINDOWS_MEDIA_FORMAT=1
         CMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
         VERSION="${CURRENT_VERSION}"
         JUCE_DISPLAY_SPLASH_SCREEN=0
@@ -215,6 +216,16 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CPACK_NSIS_MODIFY_PATH ON)
     # Default install root – user can change during install
     set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64\\\\${COMPANY_NAME}")
+
+    # Inform user that the VST3 will also be placed in the standard scan path
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS [=[
+      CreateDirectory "$COMMONFILES64\VST3"
+      CopyFiles /SILENT "$INSTDIR\VST3\DoodleVox.vst3" "$COMMONFILES64\VST3"
+      MessageBox MB_OK "The DoodleVox VST3 plugin has also been installed to:$\r$\n$\r$\n$COMMONFILES64\VST3$\r$\nso that your DAW can detect it automatically."
+    ]=])
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS [=[
+      RMDir /r "$COMMONFILES64\VST3\DoodleVox.vst3"
+    ]=])
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Linux: .deb package

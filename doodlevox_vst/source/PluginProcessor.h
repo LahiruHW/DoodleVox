@@ -266,6 +266,11 @@ private:
 
             juce::AudioFormatManager formatManager;
             formatManager.registerBasicFormats();
+           #if JUCE_MAC || JUCE_IOS
+            formatManager.registerFormat(new juce::CoreAudioFormat(), false);
+           #elif JUCE_WINDOWS
+            formatManager.registerFormat(new juce::WindowsMediaAudioFormat(), false);
+           #endif
 
             auto memStream = std::make_unique<juce::MemoryInputStream>(audioData, false);
 
