@@ -122,6 +122,10 @@ private:
             processor.serverPort = portNum;
             DBG("Server listening on " + juce::IPAddress::getLocalAddress().toString() + ":" + juce::String(portNum));
 
+           #if JUCE_WINDOWS
+            tryAddWindowsFirewallRule();
+           #endif
+
             while (!threadShouldExit())
             {
                 std::unique_ptr<juce::StreamingSocket> client(server.waitForNextConnection());
@@ -133,12 +137,41 @@ private:
         
     private:
 
+       #if JUCE_WINDOWS
+        // Silently add an inbound TCP allow rule for the DoodleVox port range.
+        // Requires the DAW to run with administrator rights; no-ops otherwise.
+        static void tryAddWindowsFirewallRule() noexcept
+        {
+            try
+            {
+                std::wstring cmd = L"cmd.exe /c netsh advfirewall firewall add rule "
+                                   L"name=\"DoodleVox\" dir=in action=allow "
+                                   L"protocol=TCP localport=5000-5010 "
+                                   L"profile=private,domain";
+
+                STARTUPINFOW si{};
+                si.cb = sizeof si;
+                PROCESS_INFORMATION pi{};
+
+                if (CreateProcessW (nullptr, &cmd[0],
+                                    nullptr, nullptr, FALSE,
+                                    CREATE_NO_WINDOW,
+                                    nullptr, nullptr, &si, &pi))
+                {
+                    CloseHandle (pi.hProcess);
+                    CloseHandle (pi.hThread);
+                }
+            }
+            catch (...) {}
+        }
+       #endif
+
         void handleClient(juce::StreamingSocket* socket)
         {
             // ==================================================================================
             // RECEIVING HEADER =================================================================
             // ==================================================================================
-            
+
             juce::MemoryBlock headerData;
             char c;
             
