@@ -48,8 +48,35 @@ public:
     {
         const int port = serverPort.load();
         if (port == 0) return {};
-        return "http://" + juce::IPAddress::getLocalAddress().toString()
-               + ":" + juce::String (port) + "?token=" + sessionToken;
+        return "http://" + getLanIpAddress() + ":" + juce::String (port) + "?token=" + sessionToken;
+    }
+
+    /** Picks the best LAN IPv4 address, skipping loopback (127.x) and APIPA link-local
+        (169.254.x) addresses that Windows commonly returns from virtual or unconnected adapters.
+        Prefers 192.168.x.x, then 10.x.x.x, then any other routable address. */
+    static juce::String getLanIpAddress()
+    {
+        const auto addresses = juce::IPAddress::getAllAddresses (false); // IPv4 only
+
+        juce::String fallback;
+
+        for (const auto& addr : addresses)
+        {
+            const auto s = addr.toString();
+
+            if (s.startsWith ("127."))    continue; // loopback
+            if (s.startsWith ("169.254.")) continue; // APIPA / link-local
+
+            if (s.startsWith ("192.168.")) return s; // most common home/office Wi-Fi — take immediately
+            if (s.startsWith ("10."))       return s; // corporate LAN
+
+            if (fallback.isEmpty())
+                fallback = s; // 172.x or anything else — keep as last resort
+        }
+
+        if (fallback.isNotEmpty()) return fallback;
+
+        return juce::IPAddress::getLocalAddress().toString(); // ultimate fallback
     }
 
     enum class ReceiverState { Idle , Receiving };
