@@ -26,7 +26,8 @@ ConnectPage::ConnectPage()
 void ConnectPage::setUrl (const juce::String& url)
 {
     qrCode.setUrl (url);
-    urlLabel.setText (url, juce::dontSendNotification);
+    urlLabel.setText (url.isEmpty() ? "Starting server..." : url,
+                      juce::dontSendNotification);
 }
 
 void ConnectPage::paint (juce::Graphics& g)

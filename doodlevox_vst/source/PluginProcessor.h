@@ -42,10 +42,14 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    /** Returns "http://<local-ip>:5000?token=..." — the URL the mobile app should connect to. */
+    /** Returns "http://<local-ip>:<port>?token=..." once the server is listening, or empty string
+        if the server hasn't bound a port yet (e.g. still starting up or all ports are in use). */
     juce::String getServerUrl() const
     {
-        return "http://" + juce::IPAddress::getLocalAddress().toString() + ":5000?token=" + sessionToken;
+        const int port = serverPort.load();
+        if (port == 0) return {};
+        return "http://" + juce::IPAddress::getLocalAddress().toString()
+               + ":" + juce::String (port) + "?token=" + sessionToken;
     }
 
     enum class ReceiverState { Idle , Receiving };
@@ -54,6 +58,7 @@ public:
     std::atomic<bool> newFileReady { false };
     std::atomic<bool> clientEverConnected { false };
     std::atomic<bool> sessionActive { false };
+    std::atomic<int>  serverPort { 0 }; // 0 = not yet listening
     juce::String sessionToken;
     juce::File sessionDir;
 
@@ -68,16 +73,26 @@ private:
         void run() override
         {
             juce::StreamingSocket server;
-            
-            int portNum = 5000;
-            
-            if (!server.createListener(portNum))
+
+            // Port 5000 is often in Windows' excluded dynamic port range; try a
+            // short range so we always land on a free port.
+            int portNum = -1;
+            for (int tryPort = 5000; tryPort <= 5010 && !threadShouldExit(); ++tryPort)
             {
-                DBG("Failed to create server");
+                if (server.createListener (tryPort))
+                {
+                    portNum = tryPort;
+                    break;
+                }
+            }
+
+            if (portNum < 0)
+            {
+                DBG("Failed to create server on any port (5000-5010)");
                 return;
             }
 
-            // DBG("Server listening on port 5000");
+            processor.serverPort = portNum;
             DBG("Server listening on " + juce::IPAddress::getLocalAddress().toString() + ":" + juce::String(portNum));
 
             while (!threadShouldExit())
@@ -254,7 +269,7 @@ private:
                 if (bytesRead <= 0)
                     break;
 
-                audioData.append(buffer, bytesRead);
+                audioData.append(buffer, (size_t) bytesRead);
                 remaining -= bytesRead;
             }
 
