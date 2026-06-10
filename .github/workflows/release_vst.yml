@@ -315,8 +315,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "No CHANGELOG changes to commit."
           else
+            git commit -m "chore: update VST CHANGELOG for ${{ github.ref_name }} [skip ci]"
             git fetch origin main
             git rebase origin/main
-            git commit -m "chore: update VST CHANGELOG for ${{ github.ref_name }} [skip ci]"
             git push origin HEAD:main
           fi
