@@ -5,6 +5,11 @@ GitHub Releases are generated automatically from commit and PR history.
 
 ---
 
+## [0.1.3] — 2026-06-10
+
+**Full Changelog**: https://github.com/LahiruHW/DoodleVox/compare/mobile/v0.1.6-build-16...vst/v0.1.3
+
+
 ## [0.1.1] — 2026-05-27
 - Windows: Add support for custom audio formats
 - Windows: Set NSIS `MODIFY_PATH` to `ON` so the install directory is added to PATH
