@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
@@ -87,6 +88,17 @@ class DVDawProvider extends ChangeNotifier {
         notifyListeners();
         return false;
       }
+    } on TimeoutException catch (e) {
+      // A silent timeout (rather than an immediate refusal) usually means a
+      // firewall on the computer is dropping the connection.
+      _errorMessage =
+          'Connection timed out. Your computer\'s firewall may be blocking '
+          'DoodleVox — try reinstalling the plugin. Also check that both '
+          'devices are on the same Wi-Fi network.';
+      _state = .error;
+      _log.severe('Connection timeout: $e');
+      notifyListeners();
+      return false;
     } catch (e) {
       _errorMessage =
           'Could not reach the DAW. Make sure both devices are on the same Wi-Fi network.';

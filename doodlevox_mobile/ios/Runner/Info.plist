@@ -70,7 +70,14 @@
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
-		<key>NSCameraUsageDescription</key>
+		<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+		<string>DoodleVox needs local network access to connect to the DoodleVox plugin running in your DAW.</string>
+	<key>NSCameraUsageDescription</key>
 		<string>DoodleVox needs camera access to scan QR codes for DAW connection.</string>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>DoodleVox needs microphone access to record audio.</string>
