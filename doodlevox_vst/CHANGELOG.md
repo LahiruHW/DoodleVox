@@ -5,6 +5,11 @@ GitHub Releases are generated automatically from commit and PR history.
 
 ---
 
+## [0.1.4] — 2026-06-10
+
+**Full Changelog**: https://github.com/LahiruHW/DoodleVox/compare/mobile/v0.1.6-build-16...vst/v0.1.4
+
+
 ## [0.1.3] — 2026-06-10
 
 **Full Changelog**: https://github.com/LahiruHW/DoodleVox/compare/mobile/v0.1.6-build-16...vst/v0.1.3
