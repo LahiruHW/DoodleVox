@@ -84,7 +84,7 @@ jobs:
       - name: Ensure NSIS (for installer) is available
         if: runner.os == 'Windows'
         run: |
-          choco install nsis -y || true
+          choco install nsis -y
 
       - name: Create installer (Windows)
         working-directory: doodlevox_vst
@@ -92,14 +92,24 @@ jobs:
         run: |
           # Configure and build installer output in build_installer
           cmake -B build_installer -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) { throw "CMake configure failed" }
           cmake --build build_installer --config Release
+          if ($LASTEXITCODE -ne 0) { throw "Build failed" }
           Push-Location build_installer
-          cpack -C Release || true
+          cpack -C Release
+          $cpackExit = $LASTEXITCODE
           Pop-Location
-          # Normalize installer for upload
+          if ($cpackExit -ne 0) { throw "CPack failed (exit $cpackExit)" }
+          # CPack writes the NSIS installer to the build_installer root,
+          # e.g. DoodleVox-0.1.3-win64.exe (or -win32 depending on how CPack
+          # names the system). Never glob recursively here: the build tree is
+          # full of unrelated executables (compiler test stubs, the Standalone
+          # app, JUCE helpers) that must not be mistaken for the installer.
+          $exe = Get-ChildItem -Path build_installer -Filter 'DoodleVox-*-win*.exe' | Select-Object -First 1
+          if (-not $exe) { throw "No NSIS installer (DoodleVox-*-win*.exe) found in build_installer/" }
+          if ($exe.Length -lt 1MB) { throw "Installer is suspiciously small ($($exe.Length) bytes) — packaging likely failed" }
           New-Item -ItemType Directory -Force -Path build_installer\_published | Out-Null
-          $exe = Get-ChildItem -Path build_installer -Recurse -Filter *.exe -ErrorAction SilentlyContinue | Select-Object -First 1
-          if ($exe) { Copy-Item $exe.FullName -Destination build_installer\_published\DoodleVox-Windows-Installer.exe -Force }
+          Copy-Item $exe.FullName -Destination build_installer\_published\DoodleVox-Windows-Installer.exe -Force
 
       - name: Upload Windows installers
         uses: actions/upload-artifact@v4

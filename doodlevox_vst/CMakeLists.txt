@@ -5,7 +5,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/modules/cmake-includes/CPM.cmake")
 
 # General setup
 set(PROJECT_NAME "DoodleVox")
-set(CURRENT_VERSION "0.1.3")
+set(CURRENT_VERSION "0.1.4")
 set(PRODUCT_NAME "DoodleVox")
 set(COMPANY_NAME "CreatedByCAPSLOCK")
 set(BUNDLE_ID "com.createdbycapslock.DoodleVox")
@@ -221,16 +221,23 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Also add the inbound firewall rule here: the installer runs elevated, whereas
     # the DAW hosting the plugin normally does not, so this is the only reliable
     # place to open ports 5000-5010 for the mobile app connection.
+    # NOTE: escaping here is unusual. CPack copies these values verbatim into
+    # CPackConfig.cmake, and cpack re-parses that file as CMake code, so the
+    # value must survive a second round of CMake string parsing:
+    #   - backslashes must be doubled (a single "\V" is a fatal invalid escape)
+    #   - double quotes must be written as \" (a bare quote ends the string and
+    #     the fragments get rejoined as a ;-separated list, corrupting the
+    #     generated NSIS script)
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS [=[
-      CreateDirectory "$COMMONFILES64\VST3"
-      CopyFiles /SILENT "$INSTDIR\VST3\DoodleVox.vst3" "$COMMONFILES64\VST3"
-      nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="DoodleVox"'
-      nsExec::ExecToLog 'netsh advfirewall firewall add rule name="DoodleVox" dir=in action=allow protocol=TCP localport=5000-5010 profile=any'
-      MessageBox MB_OK "The DoodleVox VST3 plugin has also been installed to:$\r$\n$\r$\n$COMMONFILES64\VST3$\r$\nso that your DAW can detect it automatically."
+      CreateDirectory \"$COMMONFILES64\\VST3\"
+      CopyFiles /SILENT \"$INSTDIR\\VST3\\DoodleVox.vst3\" \"$COMMONFILES64\\VST3\"
+      nsExec::ExecToLog 'netsh advfirewall firewall delete rule name=\"DoodleVox\"'
+      nsExec::ExecToLog 'netsh advfirewall firewall add rule name=\"DoodleVox\" dir=in action=allow protocol=TCP localport=5000-5010 profile=any'
+      MessageBox MB_OK \"The DoodleVox VST3 plugin has also been installed to:$\\r$\\n$\\r$\\n$COMMONFILES64\\VST3$\\r$\\nso that your DAW can detect it automatically.\"
     ]=])
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS [=[
-      RMDir /r "$COMMONFILES64\VST3\DoodleVox.vst3"
-      nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="DoodleVox"'
+      RMDir /r \"$COMMONFILES64\\VST3\\DoodleVox.vst3\"
+      nsExec::ExecToLog 'netsh advfirewall firewall delete rule name=\"DoodleVox\"'
     ]=])
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
