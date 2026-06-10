@@ -2,6 +2,10 @@
 
 #include <JuceHeader.h>
 
+#if JUCE_WINDOWS
+ #include <windows.h>
+#endif
+
 //==============================================================================
 class DoodleVoxVSTAudioProcessor final : public juce::AudioProcessor
 {
@@ -86,6 +90,7 @@ public:
     std::atomic<bool> clientEverConnected { false };
     std::atomic<bool> sessionActive { false };
     std::atomic<int>  serverPort { 0 }; // 0 = not yet listening
+    std::atomic<bool> firewallRuleAdded { false }; // Windows only; false = needs manual firewall config
     juce::String sessionToken;
     juce::File sessionDir;
 
@@ -123,7 +128,11 @@ private:
             DBG("Server listening on " + juce::IPAddress::getLocalAddress().toString() + ":" + juce::String(portNum));
 
            #if JUCE_WINDOWS
-            tryAddWindowsFirewallRule();
+            processor.firewallRuleAdded = ensureWindowsFirewallRule();
+            if (!processor.firewallRuleAdded)
+                DBG("WARNING: No Windows Firewall rule for DoodleVox — reinstall the plugin, "
+                    "run the DAW as Administrator once, or add a manual inbound TCP allow "
+                    "rule for ports 5000-5010.");
            #endif
 
             while (!threadShouldExit())
@@ -138,31 +147,50 @@ private:
     private:
 
        #if JUCE_WINDOWS
-        // Silently add an inbound TCP allow rule for the DoodleVox port range.
-        // Requires the DAW to run with administrator rights; no-ops otherwise.
-        static void tryAddWindowsFirewallRule() noexcept
+        // Ensure an inbound allow rule exists for the DoodleVox port range.
+        // The rule is normally created by the installer (which runs elevated);
+        // checking for it needs no admin rights, but adding it does — so if the
+        // check fails and the DAW isn't elevated, returns false and the user must
+        // reinstall or add the rule manually.
+        static bool ensureWindowsFirewallRule() noexcept
         {
-            try
+            auto runAndWait = [](std::wstring cmd) noexcept -> DWORD
             {
-                std::wstring cmd = L"cmd.exe /c netsh advfirewall firewall add rule "
-                                   L"name=\"DoodleVox\" dir=in action=allow "
-                                   L"protocol=TCP localport=5000-5010 "
-                                   L"profile=private,domain";
-
-                STARTUPINFOW si{};
-                si.cb = sizeof si;
-                PROCESS_INFORMATION pi{};
-
-                if (CreateProcessW (nullptr, &cmd[0],
-                                    nullptr, nullptr, FALSE,
-                                    CREATE_NO_WINDOW,
-                                    nullptr, nullptr, &si, &pi))
+                try
                 {
+                    STARTUPINFOW si{};
+                    si.cb = sizeof si;
+                    PROCESS_INFORMATION pi{};
+
+                    if (!CreateProcessW (nullptr, &cmd[0],
+                                         nullptr, nullptr, FALSE,
+                                         CREATE_NO_WINDOW,
+                                         nullptr, nullptr, &si, &pi))
+                        return (DWORD)-1;
+
+                    WaitForSingleObject (pi.hProcess, 5000);
+                    DWORD exitCode = (DWORD)-1;
+                    GetExitCodeProcess (pi.hProcess, &exitCode);
                     CloseHandle (pi.hProcess);
                     CloseHandle (pi.hThread);
+                    return exitCode;
                 }
-            }
-            catch (...) {}
+                catch (...) { return (DWORD)-1; }
+            };
+
+            // 'show rule' needs no elevation; exit code 0 = the rule already
+            // exists (created by the installer or a previous elevated run).
+            if (runAndWait (L"cmd.exe /c netsh advfirewall firewall show rule "
+                            L"name=\"DoodleVox\"") == 0)
+                return true;
+
+            // No rule yet — try to add one; exit code 0 = success,
+            // non-zero = the DAW isn't running with admin rights.
+            DWORD result = runAndWait (L"cmd.exe /c netsh advfirewall firewall add rule "
+                                       L"name=\"DoodleVox\" dir=in action=allow "
+                                       L"protocol=TCP localport=5000-5010 "
+                                       L"profile=any");
+            return result == 0;
         }
        #endif
 
@@ -342,9 +370,9 @@ private:
             juce::AudioFormatManager formatManager;
             formatManager.registerBasicFormats();
            #if JUCE_MAC || JUCE_IOS
-            formatManager.registerFormat(new juce::CoreAudioFormat(), false);
+            formatManager.registerFormat(new juce::CoreAudioFormat(), true);
            #elif JUCE_WINDOWS
-            formatManager.registerFormat(new juce::WindowsMediaAudioFormat(), false);
+            formatManager.registerFormat(new juce::WindowsMediaAudioFormat(), true);
            #endif
 
             auto memStream = std::make_unique<juce::MemoryInputStream>(audioData, false);
@@ -383,16 +411,17 @@ private:
             }
 
             juce::WavAudioFormat wavFormat;
-            
-            std::unique_ptr<juce::AudioFormatWriter> writer(
-                wavFormat.createWriterFor(
-                    outStream.get(),
+
+            // release() transfers ownership to the writer — avoids double-free
+            // since createWriterFor takes a raw ptr but also owns/deletes the stream
+            std::unique_ptr<juce::AudioFormatWriter> writer (
+                wavFormat.createWriterFor (
+                    outStream.release(),
                     reader->sampleRate,
                     (unsigned int) reader->numChannels,
                     16,
                     {},
-                    0)
-            );
+                    0));
 
             if (writer == nullptr)
             {
@@ -401,11 +430,9 @@ private:
                 return;
             }
 
-            outStream.release(); // writer owns stream now
-
             juce::AudioBuffer<float> bufferData(
-                reader->numChannels,
-                (int)reader->lengthInSamples);
+                (int) reader->numChannels,
+                (int) reader->lengthInSamples);
 
             reader->read(&bufferData,
                          0,
@@ -431,8 +458,7 @@ private:
             processor.lastReceivedFile = outputFile;
             processor.newFileReady = true;
             processor.receiverState = ReceiverState::Idle;
-            
-        };
+        }
         
         DoodleVoxVSTAudioProcessor& processor;
         

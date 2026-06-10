@@ -21,6 +21,27 @@ ConnectPage::ConnectPage()
     urlLabel.setJustificationType (juce::Justification::centred);
     urlLabel.setColour (juce::Label::textColourId, Theme::grey);
     addAndMakeVisible (urlLabel);
+
+    firewallWarningLabel.setText ("", juce::dontSendNotification);
+    firewallWarningLabel.setFont (juce::FontOptions (Theme::fontCaption));
+    firewallWarningLabel.setJustificationType (juce::Justification::centred);
+    firewallWarningLabel.setColour (juce::Label::textColourId, juce::Colours::orangered);
+    firewallWarningLabel.setVisible (false);
+    addAndMakeVisible (firewallWarningLabel);
+}
+
+void ConnectPage::setFirewallWarning (bool needed)
+{
+    const bool wasVisible = firewallWarningLabel.isVisible();
+    if (needed)
+    {
+        firewallWarningLabel.setText (
+            "Firewall blocked: reinstall DoodleVox, or run your DAW as Administrator once",
+            juce::dontSendNotification);
+    }
+    firewallWarningLabel.setVisible (needed);
+    if (needed != wasVisible)
+        resized();
 }
 
 void ConnectPage::setUrl (const juce::String& url)
@@ -57,4 +78,10 @@ void ConnectPage::resized()
     instructionLabel.setBounds (area.removeFromTop (24));
     area.removeFromTop (4);
     urlLabel.setBounds (area.removeFromTop (20));
+
+    if (firewallWarningLabel.isVisible())
+    {
+        area.removeFromTop (6);
+        firewallWarningLabel.setBounds (area.removeFromTop (32));
+    }
 }

@@ -15,6 +15,7 @@ public:
     ConnectPage();
 
     void setUrl (const juce::String& url);
+    void setFirewallWarning (bool needed);
 
     void paint (juce::Graphics& g) override;
     void resized() override;
@@ -24,6 +25,7 @@ private:
     QRCodeComponent qrCode;
     juce::Label instructionLabel;
     juce::Label urlLabel;
+    juce::Label firewallWarningLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConnectPage)
 };

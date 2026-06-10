@@ -5,7 +5,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/modules/cmake-includes/CPM.cmake")
 
 # General setup
 set(PROJECT_NAME "DoodleVox")
-set(CURRENT_VERSION "0.1.2")
+set(CURRENT_VERSION "0.1.3")
 set(PRODUCT_NAME "DoodleVox")
 set(COMPANY_NAME "CreatedByCAPSLOCK")
 set(BUNDLE_ID "com.createdbycapslock.DoodleVox")
@@ -51,7 +51,7 @@ endif()
 if(DEFINED ENV{CI})
     set(COPY_AFTER_BUILD FALSE)
 else()
-    set(COPY_AFTER_BUILD FALSE)
+    set(COPY_AFTER_BUILD TRUE)
 endif()
 
 # Define the plugin
@@ -217,14 +217,20 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Default install root – user can change during install
     set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64\\\\${COMPANY_NAME}")
 
-    # Inform user that the VST3 will also be placed in the standard scan path
+    # Inform user that the VST3 will also be placed in the standard scan path.
+    # Also add the inbound firewall rule here: the installer runs elevated, whereas
+    # the DAW hosting the plugin normally does not, so this is the only reliable
+    # place to open ports 5000-5010 for the mobile app connection.
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS [=[
       CreateDirectory "$COMMONFILES64\VST3"
       CopyFiles /SILENT "$INSTDIR\VST3\DoodleVox.vst3" "$COMMONFILES64\VST3"
+      nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="DoodleVox"'
+      nsExec::ExecToLog 'netsh advfirewall firewall add rule name="DoodleVox" dir=in action=allow protocol=TCP localport=5000-5010 profile=any'
       MessageBox MB_OK "The DoodleVox VST3 plugin has also been installed to:$\r$\n$\r$\n$COMMONFILES64\VST3$\r$\nso that your DAW can detect it automatically."
     ]=])
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS [=[
       RMDir /r "$COMMONFILES64\VST3\DoodleVox.vst3"
+      nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="DoodleVox"'
     ]=])
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")

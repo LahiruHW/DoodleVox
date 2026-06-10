@@ -47,5 +47,11 @@ void DoodleVoxVSTAudioProcessorEditor::timerCallback()
     {
         // Keep QR code URL updated in case the IP changes
         connectPage.setUrl (processorRef.getServerUrl());
+
+       #if JUCE_WINDOWS
+        // Show firewall warning once the server has started but the rule couldn't be added
+        const bool serverStarted = processorRef.serverPort.load() != 0;
+        connectPage.setFirewallWarning (serverStarted && !processorRef.firewallRuleAdded.load());
+       #endif
     }
 }
