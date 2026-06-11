@@ -5,6 +5,11 @@ Versions follow `{semver}+{build}` matching the `pubspec.yaml` version field.
 
 ---
 
+## [0.1.7-build-17] — 2026-06-11
+
+- Internal improvements and bug fixes
+
+
 ## [0.1.4+14] — 2026-05-27
 - Add codec validation in shared preferences
 
