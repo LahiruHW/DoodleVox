@@ -229,11 +229,16 @@ class RecordScreen extends StatelessWidget {
                   feedbackPosition: .top,
                   onPressed: () async {
                     if (audio.recordingPath == null) return;
-                    final success = await daw.sendToDaw(audio.recordingPath!);
+                    final slotId = library.currentSlotId;
+                    final success = await daw.sendToDaw(
+                      audio.recordingPath!,
+                      metadata: slotId != null
+                          ? library.getRecording(slotId)
+                          : null,
+                    );
                     if (!context.mounted) return;
                     if (success) {
                       // Mark the recording as synced in the library.
-                      final slotId = library.currentSlotId;
                       if (slotId != null) {
                         await library.markSentToDaw(slotId);
                       }

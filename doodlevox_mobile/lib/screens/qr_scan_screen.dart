@@ -101,16 +101,16 @@ class _QRScanScreenState extends State<QRScanScreen> {
 
   void _showNoteDialog() {
     final a = """
-At the moment, DoodleVox is currently in early-access - thanks for being here!
+DoodleVox is now in early-access - thanks for being here 😄
 
-This means that the DAW integration is fully functional, but not rolled out to public use yet. 
+The DAW integration is fully functional, and is going to be rolled out to public use soon!
 
 DoodleVox is designed for music producers who want to capture ideas instantly, without breaking their creative flow.
     """;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DVAlertDialog.show(
         context,
-        title: 'Still Doodling...',
+        title: 'Getting Warmer!',
         content: Column(
           mainAxisSize: .min,
           children: [

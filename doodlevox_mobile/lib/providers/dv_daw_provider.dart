@@ -1,8 +1,10 @@
-import 'dart:async';
 import 'dart:io';
+import 'dart:async';
+import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:doodlevox_mobile/models/dv_recording.dart';
 
 enum DawConnectionState {
   disconnected,
@@ -110,7 +112,11 @@ class DVDawProvider extends ChangeNotifier {
   }
 
   /// Send the recorded audio file to the DAW via POST.
-  Future<bool> sendToDaw(String filePath) async {
+  ///
+  /// When [metadata] is supplied, its id/title/encoding/duration/timestamps are
+  /// transmitted in a base64-encoded JSON `X-DV-Meta` header so the DAW plugin's
+  /// library can mirror the mobile recording (and later sync renames/deletions).
+  Future<bool> sendToDaw(String filePath, {DVRecording? metadata}) async {
     if (!isConnected || _serverUrl == null || _token == null) {
       _errorMessage = 'Not connected to DAW';
       _state = DawConnectionState.error;
@@ -134,14 +140,29 @@ class DVDawProvider extends ChangeNotifier {
       final bytes = await file.readAsBytes();
       final uri = Uri.parse('$_serverUrl?token=$_token');
 
+      final headers = <String, String>{
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': bytes.length.toString(),
+      };
+
+      // Attach recording metadata so the DAW library mirrors mobile.
+      if (metadata != null) {
+        final meta = {
+          'id': metadata.id,
+          'title': metadata.title,
+          'encoding': metadata.encoding,
+          'durationMs': metadata.durationMs,
+          'createdAt': metadata.createdAt.toIso8601String(),
+          'updatedAt': metadata.updatedAt.toIso8601String(),
+        };
+        headers['X-DV-Meta'] = base64.encode(utf8.encode(jsonEncode(meta)));
+      }
+
       final response = await http
           .post(
             uri,
             body: bytes,
-            headers: {
-              'Content-Type': 'application/octet-stream',
-              'Content-Length': bytes.length.toString(),
-            },
+            headers: headers,
           )
           .timeout(const Duration(seconds: 30));
 
